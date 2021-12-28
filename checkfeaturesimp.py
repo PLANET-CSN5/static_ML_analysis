@@ -4,6 +4,7 @@ import argparse
 import math
 
 import smlmodule
+from matplotlib import pyplot
 
 if __name__ == "__main__":
 
@@ -77,6 +78,8 @@ if __name__ == "__main__":
     issdata_dict = {}
     
     for i, row in issdata.iterrows():
+
+        prov = row["prov"]
         
         ycasi = row["dataprelievo"]
         ysintomi = row["sintomatici_dataprelievo"]
@@ -100,4 +103,69 @@ if __name__ == "__main__":
                                            ysintomi, \
                                            yricoverati, \
                                            yterapiaintensiva))
+
+
+    prinvincewithzero = set() 
+    province = datapaper["Province"].values
+
+    features_dict = {}
     
+    for fn in ("pm10", "pm25", "pm10ts", "pm25ts", "popolation", "density",\
+              "commutersdensity", "depriv"):
+        features_dict[fn] = np.zeros(len(province), dtype="float64")
+    
+    labelnames = ("casi", "casi_deceduti", \
+                  "casi_con_sintomi", "casi_ricoverati", \
+                  "casi_terapiaintensiva" )
+    
+    ylogpropcasi = {}
+    ypropcasi = {}
+    for ln in labelnames:
+        ylogpropcasi[ln] = np.zeros(len(province))
+        ypropcasi[ln] = np.zeros(len(province))
+                                    
+    for i, prov in enumerate(province):
+        popolazione  = datapaper[datapaper["Province"] == prov]["Population"].values[0]
+        
+        features_dict["pm10"][i] = \
+          datapaper[datapaper["Province"] == prov]["9_29_feb_0.0_mean_pm10_ug/m3_2020"].values[0]
+        features_dict["pm25"][i] = \
+          datapaper[datapaper["Province"] == prov]["9_29_feb_0.0_mean_pm2p5_ug/m3_2020"].values[0]
+        features_dict["pm10ts"][i] = \
+          datapaper[datapaper["Province"] == prov]["9_29_feb_0.0_std_ts_pm10_n_2020"].values[0]   
+        features_dict["pm25ts"][i] = \
+          datapaper[datapaper["Province"] == prov]["9_29_feb_0.0_std_ts_pm2p5_n_2020"].values[0] 
+        features_dict["popolation"][i] = popolazione
+        features_dict["density"][i] = \
+          datapaper[datapaper["Province"] == prov]["Density"].values[0]    
+        features_dict["commutersdensity"][i] = \
+          datapaper[datapaper["Province"] == prov]["CommutersDensity"].values[0]       
+        features_dict["depriv"][i] = \
+          deprividx[deprividx["prov"] == prov]["ID_2011"].values[0]
+        
+        for ln in labelnames:
+            ypropcasi[ln][i] = issdata_dict[prov][ln]/popolazione
+            if (issdata_dict[prov][ln] == 0.0):
+                #Note: Maybe to be removed 
+                print("Zero ", ln,": " ,prov)
+                prinvincewithzero.add(prov)
+            else:
+                ylogpropcasi[ln][i] = math.log(ypropcasi[ln][i])
+                    
+
+    #print(y.shape)
+    features = ("pm10", "pm25", "density", "commutersdensity", "depriv")
+
+    X = np.column_stack ((features_dict["pm10"], \
+                          features_dict["pm25"], \
+                          features_dict["density"], \
+                          features_dict["commutersdensity"], \
+                          features_dict["depriv"]))
+
+    Y = ylogpropcasi["casi"]
+    #print(y.shape)
+    pyplot.figure(figsize=(5,5))
+
+    smlmodule.rfregressors (X, Y , features, N=50)
+    smlmodule.knregressors (X, Y , features, N=50)
+        
