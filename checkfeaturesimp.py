@@ -182,10 +182,8 @@ if __name__ == "__main__":
     print("")
     print("Method , Avg. Train RMSE , Std. , Avg. Test RMSE , Std. , Full RMSE , ", end ="")
     for i, f in enumerate(fullfeatset):
-        if i == len(fullfeatset) - 1:
-            print (f)
-        else:
-            print (f + " , ", end="")
+        print (f + " , ", end="")
+    print(", Top ranked Features")
 
     features = ("pm10", "pm25", "density", "commutersdensity", "depriv", "lat")
     listostack = [features_dict[v] for v in features]
