@@ -168,4 +168,51 @@ if __name__ == "__main__":
 
     smlmodule.rfregressors (X, Y , features, N=50)
     smlmodule.knregressors (X, Y , features, N=50)
-        
+
+    fullfeatset = ("pm10", "pm25", "density", "commutersdensity", "depriv")
+
+    y = ylogpropcasi["casi"]
+    
+    trainavgrmse = {}
+    trainavgrmsestd = {}
+    
+    testavgrmse = {}
+    testavgrmsestd = {}
+    
+    fullrmse = {}
+    featimport = {}
+    
+    print("Method , Avg. Train RMSE , Std. , Avg. Test RMSE , Std. , Full RMSE , ", end ="")
+    for f in fullfeatset:
+        print (f + " , ", end="")
+    print()
+    
+    features = ("pm10", "pm25", "density", "commutersdensity")
+    X = np.column_stack ((features_dict["pm10"], \
+                          features_dict["pm25"], \
+                          features_dict["density"], \
+                          features_dict["commutersdensity"]))
+    
+    rf = smlmodule.rfregressors (X, y, features, verbose=False)
+    #kn = knregressors (X, y, features)
+    smlmodule.printcsvRF (fullfeatset, features, rf)
+    
+    features = ("pm10", "density", "commutersdensity", "depriv")
+    X = np.column_stack ((features_dict["pm10"], \
+                          features_dict["density"], \
+                          features_dict["commutersdensity"], \
+                          features_dict["depriv"]))
+    
+    rf = smlmodule.rfregressors (X, y, features, verbose=False)
+    #kn = knregressors (X, y, features)
+    smlmodule.printcsvRF (fullfeatset, features, rf)
+    
+    features = ("pm25", "density", "commutersdensity", "depriv")
+    X = np.column_stack ((features_dict["pm25"], \
+                          features_dict["density"], \
+                          features_dict["commutersdensity"], \
+                          features_dict["depriv"]))
+    rf = smlmodule.rfregressors (X, y, features, verbose=False)
+    #kn = knregressors (X, y, features)
+    smlmodule.printcsvRF (fullfeatset, features, rf)
+            

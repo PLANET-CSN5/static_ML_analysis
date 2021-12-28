@@ -82,7 +82,7 @@ def extraxtnumber (indata, id, sdate, edate):
 
 ##################################################################################33
 
-def rfregressors (Xin, yin, features, plotname="RFmodel", N = 50):
+def rfregressors (Xin, yin, features, plotname="RFmodel", N = 50, verbose=True):
     train_rmse = []
     test_rmse = []
  
@@ -101,12 +101,14 @@ def rfregressors (Xin, yin, features, plotname="RFmodel", N = 50):
         mse = sklearn.metrics.mean_squared_error(y_test, y_pred)
         rmse = math.sqrt(mse)
         test_rmse.append(rmse)
-      
-      
-    print("Training set average RMSE: ", np.average(train_rmse), np.std(train_rmse))
-    print("    Test set average RMSE: ", np.average(test_rmse), np.std(test_rmse))
- 
-    print(" ")
+
+    trainavgrmse = (np.average(train_rmse), np.std(train_rmse))
+    testavgrmse = (np.average(test_rmse), np.std(test_rmse)) 
+
+    if verbose:     
+        print("Training set average RMSE: ", trainavgrmse[0], trainavgrmse[1])
+        print("    Test set average RMSE: ", testavgrmse[0], testavgrmse[1])
+        print(" ")
       
     model = RandomForestRegressor()
  
@@ -117,25 +119,30 @@ def rfregressors (Xin, yin, features, plotname="RFmodel", N = 50):
  
     mse = sklearn.metrics.mean_squared_error(yin, y_pred)
     rmse = math.sqrt(mse)
-    print("Fullset RMSE: ", rmse)
+    if verbose:
+        print("Fullset RMSE: ", rmse)
+    
+    fullsetrmse = rmse
  
-    pyplot.title("ScatterPlot predicted vs True")
-    pyplot.scatter(yin, y_pred)
-    #pyplot.show()
-    pyplot.savefig(plotname+"_scatter.png")
+    if verbose:
+        pyplot.title("ScatterPlot predicted vs True")
+        pyplot.scatter(yin, y_pred)
+        #pyplot.show()
+        pyplot.savefig(plotname+"_scatter.png")
  
     # get importance
-    print("")
     importance = model.feature_importances_
-    print("Features importance from model: ")
-    # summarize feature importance
-    for i,v in enumerate(importance):
-          print('Feature: %s, Score: %.5f' % (features[i],v))
+    if verbose:
+        print("")
+        print("Features importance from model: ")
+        # summarize feature importance
+        for i,v in enumerate(importance):
+            print('Feature: %s, Score: %.5f' % (features[i],v))
  
-    # plot feature importance
-    pyplot.bar(features, importance)
-    #pyplot.show()
-    pyplot.savefig(plotname+"_feats_imp_frommodel.png")
+        # plot feature importance
+        pyplot.bar(features, importance)
+        #pyplot.show()
+        pyplot.savefig(plotname+"_feats_imp_frommodel.png")
  
     #Permutation feature importance is a model inspection technique that 
     # can be used for any fitted estimator when the data is tabular. This 
@@ -158,18 +165,33 @@ def rfregressors (Xin, yin, features, plotname="RFmodel", N = 50):
     # get importance
     importance = results.importances_mean
     # summarize feature importance
-    print("")
-    print("Features importance from Permutation: ")
+
+    if verbose:
+        print("")
+        print("Features importance from Permutation: ")
+
+    totfi = 0.0
+    featimport = {}
     for i,v in enumerate(importance):
-          print('Feature: %s, Score: %.5f' % (features[i],v))
-    # plot feature importance
-    pyplot.bar(features, importance)
-    #pyplot.show()
-    pyplot.savefig(plotname+"_feats_imp_frompermutation.png")
+        featimport[features[i]] = v
+        if verbose:
+            print('Feature: %s, Score: %.5f' % (features[i],v))
+        totfi += v
+
+    for i,v in enumerate(importance):
+        featimport[features[i]] /= totfi
+
+    if verbose:
+        # plot feature importance
+        pyplot.bar(features, importance)
+        #pyplot.show()
+        pyplot.savefig(plotname+"_feats_imp_frompermutation.png")
+
+    return trainavgrmse, testavgrmse, fullsetrmse, featimport
 
 ##################################################################################33
 
-def knregressors (Xin, yin, features, plotname="KNmodel", N=50):
+def knregressors (Xin, yin, features, plotname="KNmodel", N=50, verbose=True):
     train_rmse = []
     test_rmse = []
  
@@ -197,11 +219,14 @@ def knregressors (Xin, yin, features, plotname="KNmodel", N=50):
         mse = sklearn.metrics.mean_squared_error(y_test, y_pred)
         rmse = math.sqrt(mse)
         test_rmse.append(rmse)
-        
-    print("Training set average RMSE: ", np.average(train_rmse), np.std(train_rmse))
-    print("    Test set average RMSE: ", np.average(test_rmse), np.std(test_rmse))
- 
-    print(" ")
+
+    trainavgrmse = (np.average(train_rmse), np.std(train_rmse))
+    testavgrmse = (np.average(test_rmse), np.std(test_rmse)) 
+
+    if verbose:      
+        print("Training set average RMSE: ", trainavgrmse[0], trainavgrmse[1])
+        print("    Test set average RMSE: ", testavgrmse[0], testavgrmse[1])
+        print(" ")
       
     model = KNeighborsRegressor()
     
@@ -212,13 +237,16 @@ def knregressors (Xin, yin, features, plotname="KNmodel", N=50):
  
     mse = sklearn.metrics.mean_squared_error(yin, y_pred)
     rmse = math.sqrt(mse)
-    print("Fullset RMSE: ", rmse)
     y_pred = model.predict(Xin)
- 
-    pyplot.title ("ScatterPlot Predicted vs True)")
-    pyplot.scatter(yin, y_pred)
-    #pyplot.show()
-    pyplot.savefig(plotname+"_scatter.png")
+
+    fullsetrmse = rmse
+
+    if verbose:
+        print("Fullset RMSE: ", rmse)
+        pyplot.title ("ScatterPlot Predicted vs True)")
+        pyplot.scatter(yin, y_pred)
+        #pyplot.show()
+        pyplot.savefig(plotname+"_scatter.png")
       
     model = KNeighborsRegressor()
  
@@ -229,11 +257,69 @@ def knregressors (Xin, yin, features, plotname="KNmodel", N=50):
     # get importance
     importance = results.importances_mean  
     # summarize feature importance
-    print("")
-    print("Features importance from Permutation: ")
-    for i,v in enumerate(importance):	
-        print('Feature: %s, Score: %.5f' % (features[i],v))
-    # plot feature importance
-    pyplot.bar(features, importance)
-    #pyplot.show()
-    pyplot.savefig(plotname+"_feats_imp_frompermutation.png")
+    
+    if verbose:
+        print("")
+        print("Features importance from Permutation: ")
+        for i,v in enumerate(importance):	
+            print('Feature: %s, Score: %.5f' % (features[i],v))
+        # plot feature importance
+        pyplot.bar(features, importance)
+        #pyplot.show()
+        pyplot.savefig(plotname+"_feats_imp_frompermutation.png")
+
+    featimport = {}
+    totfi = 0.0
+    for i,v in enumerate(importance):
+        featimport[features[i]] = v
+        totfi += v
+        
+    for i,v in enumerate(importance):
+        featimport[features[i]] /= totfi
+        
+    return trainavgrmse, testavgrmse, fullsetrmse, featimport
+
+##################################################################################33
+
+def printcsv (fullfeatset, features, rf, kn):
+
+    kstr = ""
+    for f in features:
+        kstr += f + "_"
+    print(kstr + "RF , ", end = "")
+    print("%10.5f , %10.5f , %10.5f , %10.5f , %10.5f , "% \
+          (rf[0][0], rf[0][1], rf[1][0], rf[1][1], rf[2]), end="")
+    for k in fullfeatset:
+        if k in rf[3]:
+            print("%10.5f , "%(rf[3][k]), end="")
+        else:
+            print("0.0 , ", end="")
+    print()
+    print(kstr + "KN , ", end = "")
+    print("%10.5f , %10.5f , %10.5f , %10.5f , %10.5f , "% \
+          (kn[0][0], kn[0][1], kn[1][0], kn[1][1], kn[2]), end="")
+    for k in fullfeatset:
+        if k in kn[3]:
+            print("%10.5f , "%(kn[3][k]), end="")
+        else:
+            print("0.0 , ", end="")
+    print()
+
+##################################################################################33
+
+def printcsvRF (fullfeatset, features, rf):
+    
+    kstr = ""
+    for f in features:
+        kstr += f + "_"
+    print(kstr + "RF , ", end = "")
+    print("%10.5f , %10.5f , %10.5f , %10.5f , %10.5f , "% \
+          (rf[0][0], rf[0][1], rf[1][0], rf[1][1], rf[2]), end="")
+    for k in fullfeatset:
+        if k in rf[3]:
+            print("%10.5f , "%(rf[3][k]), end="")
+        else:
+            print("0.0 , ", end="")
+    print()
+
+##################################################################################33
