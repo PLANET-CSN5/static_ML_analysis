@@ -298,28 +298,39 @@ def printcsv (fullfeatset, features, rf, kn):
     print(kstr + "KN , ", end = "")
     print("%10.5f , %10.5f , %10.5f , %10.5f , %10.5f , "% \
           (kn[0][0], kn[0][1], kn[1][0], kn[1][1], kn[2]), end="")
-    for k in fullfeatset:
+    for i, k in enumerate(fullfeatset):
         if k in kn[3]:
-            print("%10.5f , "%(kn[3][k]), end="")
+            if i == len(fullfeatset) - 1:
+                print("%10.5f "%(kn[3][k]))
+            else:
+                print("%10.5f , "%(kn[3][k]), end="")
         else:
-            print("0.0 , ", end="")
-    print()
+            if i == len(fullfeatset) - 1:
+                print("0.0 ")
+            else:
+                print("0.0 , ", end="")
 
 ##################################################################################33
 
 def printcsvRF (fullfeatset, features, rf):
-    
+
     kstr = ""
     for f in features:
         kstr += f + "_"
     print(kstr + "RF , ", end = "")
     print("%10.5f , %10.5f , %10.5f , %10.5f , %10.5f , "% \
           (rf[0][0], rf[0][1], rf[1][0], rf[1][1], rf[2]), end="")
-    for k in fullfeatset:
+
+    for i, k in enumerate(fullfeatset):
         if k in rf[3]:
-            print("%10.5f , "%(rf[3][k]), end="")
+            if i == len(fullfeatset) - 1:
+                print("%10.5f "%(rf[3][k]))
+            else:
+                print("%10.5f , "%(rf[3][k]), end="")
         else:
-            print("0.0 , ", end="")
-    print()
+            if i == len(fullfeatset) - 1:
+                print("0.0 ")
+            else:
+                print("0.0 , ", end="")
 
 ##################################################################################33
