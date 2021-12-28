@@ -160,7 +160,7 @@ if __name__ == "__main__":
 
     #print(y.shape)
     if args.checkdetails:
-        features = ("pm10", "pm25", "density", "commutersdensity", "depriv", "lat")
+        features = ("pm10", "density", "commutersdensity", "depriv", "lat")
         listostack = [features_dict[v] for v in features]
         X = np.column_stack (listostack)
 
