@@ -186,6 +186,17 @@ if __name__ == "__main__":
     for f in fullfeatset:
         print (f + " , ", end="")
     print()
+
+    features = ("pm10", "pm25", "density", "commutersdensity", "depriv")
+    X = np.column_stack ((features_dict["pm10"], \
+                          features_dict["pm25"], \
+                          features_dict["density"], \
+                          features_dict["commutersdensity"], \
+                          features_dict["depriv"]))
+    
+    rf = smlmodule.rfregressors (X, y, features, verbose=False)
+    #kn = knregressors (X, y, features)
+    smlmodule.printcsvRF (fullfeatset, features, rf)
     
     features = ("pm10", "pm25", "density", "commutersdensity")
     X = np.column_stack ((features_dict["pm10"], \
