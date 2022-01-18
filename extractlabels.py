@@ -5,6 +5,14 @@ import argparse
 
 import smlmodule
 
+# Range date
+#           Inquinamento                 Casi  
+# period1 = ['2020-02-09', '2020-03-07'] ['2020-02-09', '2020-03-07']  YEAR-MONTH-DAY
+# period2 = ['2020-02-09', '2020-03-21'] # YEAR-MONTH-DAY
+# period3 = ['2020-09-12', '2020-11-01'] # YEAR-MONTH-DAY
+# period4 = ['2020-09-12', '2020-11-14'] # YEAR-MONTH-DAY
+ 
+
 if __name__ == "__main__":
 
     tabellecodicipath = "/usr/local/share/public/TabelleCodici.xlsx"
@@ -64,40 +72,56 @@ if __name__ == "__main__":
     print("Ricoverati        :", len(ricoverati))
     print("Sintomatici       :", len(sintomatici))
     
-    fpout = open("2402_to_1303.csv", "w")
-    print("id,prov,dataprelievo,deceduti_dataprelievo," + \
-       "ricoverati_dataprelievo,sintomatici_dataprelievo,terapiaintensiva_dataprelievo")
-    fpout.write("id,prov,dataprelievo,deceduti_dataprelievo," + \
-       "ricoverati_dataprelievo,sintomatici_dataprelievo,terapiaintensiva_dataprelievo\n")
+    startenddate = {"2020_2_24" : "2020_3_13", \
+                     "2020_2_9" : "2020_3_21", \
+                    "2020_9_12" : "2020_10_15", \
+                    "2020_9_12" : "2020_11_14", \
+                     "2020_6_1" : "2020_9_1" }
 
-    for id in idtoprov:
-        newdata = smlmodule.extract_given_prov (data, id)
+    for startend in startenddate.items():
 
-        sdate = datetime.date(2020, 2, 24)   # start date
-        edate = datetime.date(2020, 3, 13)   # end date
+        fpout = open(startend[0]+"_to_"+startend[1]+".csv", "w")
+        print("id,prov,dataprelievo,deceduti_dataprelievo," + \
+           "ricoverati_dataprelievo,sintomatici_dataprelievo,terapiaintensiva_dataprelievo")
+        fpout.write("id,prov,dataprelievo,deceduti_dataprelievo," + \
+           "ricoverati_dataprelievo,sintomatici_dataprelievo,terapiaintensiva_dataprelievo\n")
        
-        dataprelievo, datasintomi, datadiagnosi = smlmodule.extraxtnumber (data, id, sdate, edate)
-        deceduti_dataprelievo, deceduti_datasintomi, deceduti_datadiagnosi = \
-            smlmodule.extraxtnumber (deceduti, id, sdate, edate)
-        terapiaintensiva_dataprelievo, terapiaintensiva_datasintomi, terapiaintensiva_datadiagnosi = \
-            smlmodule.extraxtnumber (terapiaintensiva, id, sdate, edate)
-        ricoverati_dataprelievo, ricoverati_datasintomi, ricoverati_datadiagnosi = \
-            smlmodule.extraxtnumber (ricoverati, id, sdate, edate)
-        sintomatici_dataprelievo, sintomatici_datasintomi,sintomatici_datadiagnosi = \
-            smlmodule.extraxtnumber (sintomatici, id, sdate, edate)
+        for id in idtoprov:
+            newdata = smlmodule.extract_given_prov (data, id)
+
+            sY = int(startend[0].split("_")[0])
+            sM = int(startend[0].split("_")[1])
+            sD = int(startend[0].split("_")[2])
+
+            eY = int(startend[1].split("_")[0])
+            eM = int(startend[1].split("_")[1])
+            eD = int(startend[1].split("_")[2])
        
-        print(id,",",idtoprov[id],",",dataprelievo, \
-              ",",deceduti_dataprelievo,\
-              ",",ricoverati_dataprelievo,\
-              ",",sintomatici_dataprelievo,\
-              ",",terapiaintensiva_dataprelievo)
-        
-        fpout.write(str(id)+"," + \
-                    str(idtoprov[id]) + "," + \
-                    str(dataprelievo) + "," + \
-                    str(deceduti_dataprelievo) + "," + \
-                    str(ricoverati_dataprelievo) + "," + \
-                    str(sintomatici_dataprelievo) + "," + \
-                    str(terapiaintensiva_datadiagnosi) + "\n")
-                    
-    fpout.close()
+            sdate = datetime.date(sY, sM, sD)   # start date
+            edate = datetime.date(eY, eM, eD)   # end date
+           
+            dataprelievo, datasintomi, datadiagnosi = smlmodule.extraxtnumber (data, id, sdate, edate)
+            deceduti_dataprelievo, deceduti_datasintomi, deceduti_datadiagnosi = \
+                smlmodule.extraxtnumber (deceduti, id, sdate, edate)
+            terapiaintensiva_dataprelievo, terapiaintensiva_datasintomi, terapiaintensiva_datadiagnosi = \
+                smlmodule.extraxtnumber (terapiaintensiva, id, sdate, edate)
+            ricoverati_dataprelievo, ricoverati_datasintomi, ricoverati_datadiagnosi = \
+                smlmodule.extraxtnumber (ricoverati, id, sdate, edate)
+            sintomatici_dataprelievo, sintomatici_datasintomi,sintomatici_datadiagnosi = \
+                smlmodule.extraxtnumber (sintomatici, id, sdate, edate)
+           
+            print(id,",",idtoprov[id],",",dataprelievo, \
+                  ",",deceduti_dataprelievo,\
+                  ",",ricoverati_dataprelievo,\
+                  ",",sintomatici_dataprelievo,\
+                  ",",terapiaintensiva_dataprelievo)
+            
+            fpout.write(str(id)+"," + \
+                        str(idtoprov[id]) + "," + \
+                        str(dataprelievo) + "," + \
+                        str(deceduti_dataprelievo) + "," + \
+                        str(ricoverati_dataprelievo) + "," + \
+                        str(sintomatici_dataprelievo) + "," + \
+                        str(terapiaintensiva_datadiagnosi) + "\n")
+                        
+        fpout.close()
