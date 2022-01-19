@@ -155,8 +155,8 @@ if __name__ == "__main__":
     for i, p in enumerate(provincelist):
         print("  ", i+1, " ", p)
 
-    issdata_dict = {}
-    
+    #issdata_dict = {}
+    # check on y values 
     for i, row in issdata.iterrows():
 
         prov = row["prov"]
@@ -167,27 +167,106 @@ if __name__ == "__main__":
         yricoverati = row["ricoverati_dataprelievo"]
         yterapiaintensiva = row["terapiaintensiva_dataprelievo"]
         
-        issdata_dict[prov] = { \
-            "casi" : ycasi, \
-            "casi_deceduti" : ydeceduti, \
-            "casi_ricoverati" : yricoverati, \
-            "casi_con_sintomi" : ysintomi, \
-            "casi_terapiaintensiva" : yterapiaintensiva}
+        #issdata_dict[prov] = { \
+        #    "casi" : ycasi, \
+        #    "casi_deceduti" : ydeceduti, \
+        #    "casi_ricoverati" : yricoverati, \
+        #    "casi_con_sintomi" : ysintomi, \
+        #    "casi_terapiaintensiva" : yterapiaintensiva}
         
         if  ycasi < ydeceduti or \
             ycasi < ysintomi or \
             ycasi < yricoverati or \
             ycasi < yterapiaintensiva:
-            print("%25s %5d %5d %5d %5d "%(low, ycasi, \
+            print("%25s %5d %5d %5d %5d "%(prov, ycasi, \
                                            ydeceduti, \
                                            ysintomi, \
                                            yricoverati, \
                                            yterapiaintensiva))
+            exit(1)
+    for label in ["dataprelievo", \
+              "sintomatici_dataprelievo", \
+              "deceduti_dataprelievo", \
+              "ricoverati_dataprelievo", \
+              "terapiaintensiva_dataprelievo"]:
 
+        print("Label: ", label)
+        
+        features_dict = {}
+        ylogpropcasi = []
+        ypropcasi = []
+        
+        counter = 0
+        for i, prov in enumerate(provincelist):
+            y = issdata[issdata["prov"] == prov][label].values[0]
+            if y > 0.0:
+                popolazione  = datapaper[datapaper["prov"] == prov]["Population"].values[0]
+                ylogpropcasi.append(math.log(y/popolazione))
+                ypropcasi.append(y/popolazione)
+                counter += 1
+                #print(i+1, " ", prov, " ", y, " ", popolazione)
+        print("  ", counter, " active province")
+        
+        # non pollutants features
+        for fn in ("population", "density", "commutersdensity", "depriv", "lat"):
+            features_dict[fn] = np.zeros(counter, dtype="float64")
+            
+        i = 0
+        for prov in provincelist:
+            y = issdata[issdata["prov"] == prov][label].values[0]
+            if y > 0.0:
+                popolazione  = datapaper[datapaper["prov"] == prov]["Population"].values[0]
+                features_dict["population"][i] = popolazione
+                features_dict["density"][i] = \
+                    datapaper[datapaper["prov"] == prov]["Density"].values[0]    
+                features_dict["commutersdensity"][i] = \
+                    datapaper[datapaper["prov"] == prov]["CommutersDensity"].values[0]       
+                features_dict["lat"][i] = \
+                    datapaper[datapaper["prov"] == prov]["Lat"].values[0]       
+                features_dict["depriv"][i] = \
+                    deprividx[deprividx["prov"] == prov]["ID_2011"].values[0]
+                
+                i = i + 1
+                
+        # polluttats features
+        for fn in pollutantsnames.split(","):
+            features_dict[fn] = np.zeros(counter, dtype="float64")
+            
+        i = 0
+        for prov in provincelist:
+            y = issdata[issdata["prov"] == prov][label].values[0]
+            if y > 0.0:
+                selected = copernico[copernico["prov"] == prov]
+ 
+                for fn in pollutantsnames.split(","):
+                    val = selected[fn].values[0]
+                    features_dict[fn][i] = val 
+                
+                i = i + 1
 
+        fullfeatset = []
+        for fn in pollutantsnames.split(","):
+            fullfeatset.append(fn)
+        fullfeatset.extend(["density", "commutersdensity", "depriv", "lat"])
+        y = ylogpropcasi
+        print("")
+        print("Method , Avg. Train RMSE , Std. , Avg. Test RMSE , Std. , Full RMSE , ", end ="")
+        for i, f in enumerate(fullfeatset):
+            print (f + " , ", end="")
+        print(", Top ranked Features")
+        
+        features = fullfeatset
+        listostack = [features_dict[v] for v in features]
+        X = np.column_stack (listostack) 
+        
+        rf = smlmodule.rfregressors (X, y, features, verbose=False)
+        #kn = knregressors (X, y, features)
+        smlmodule.printcsvRF (fullfeatset, features, rf)
+
+""" 
     prinvincewithzero = set() 
     province = datapaper["prov"].values
-
+ 
     features_dict = {}
     
     for fn in ("pm10", "pm25", "pm10ts", "pm25ts", "popolation", "density",\
@@ -215,7 +294,7 @@ if __name__ == "__main__":
           datapaper[datapaper["prov"] == prov]["9_29_feb_0.0_std_ts_pm10_n_2020"].values[0]   
         features_dict["pm25ts"][i] = \
           datapaper[datapaper["prov"] == prov]["9_29_feb_0.0_std_ts_pm2p5_n_2020"].values[0] 
-
+ 
         features_dict["popolation"][i] = popolazione
         features_dict["density"][i] = \
           datapaper[datapaper["prov"] == prov]["Density"].values[0]    
@@ -225,7 +304,7 @@ if __name__ == "__main__":
           datapaper[datapaper["prov"] == prov]["Lat"].values[0]       
         features_dict["depriv"][i] = \
           deprividx[deprividx["prov"] == prov]["ID_2011"].values[0]
-
+ 
         for ln in labelnames:
             ypropcasi[ln][i] = issdata_dict[prov][ln]/popolazione
             if (issdata_dict[prov][ln] == 0.0):
@@ -235,26 +314,26 @@ if __name__ == "__main__":
             else:
                 ylogpropcasi[ln][i] = math.log(ypropcasi[ln][i])
                     
-
+ 
     #print(y.shape)
     if args.checkdetails:
         features = ("pm10", "density", "commutersdensity", "depriv", "lat")
         listostack = [features_dict[v] for v in features]
         X = np.column_stack (listostack)
-
+ 
         #X = np.column_stack ((features_dict["pm10"], \
         #                  features_dict["pm25"], \
         #                  features_dict["density"], \
         #                  features_dict["commutersdensity"], \
         #                  features_dict["depriv"], \
         #                  features_dict["Lat"]))
-
+ 
         Y = ylogpropcasi["casi"]
         #print(y.shape)
         pyplot.figure(figsize=(5,5))
         smlmodule.rfregressors (X, Y , features, N=50)
         smlmodule.knregressors (X, Y , features, N=50)
-
+ 
     fullfeatset = ("pm10", "pm25", "density", "commutersdensity", "depriv", "lat")
     y = ylogpropcasi["casi"]
     print("")
@@ -262,7 +341,7 @@ if __name__ == "__main__":
     for i, f in enumerate(fullfeatset):
         print (f + " , ", end="")
     print(", Top ranked Features")
-
+ 
     features = ("pm10", "pm25", "density", "commutersdensity", "depriv", "lat")
     listostack = [features_dict[v] for v in features]
     X = np.column_stack (listostack) 
@@ -270,38 +349,39 @@ if __name__ == "__main__":
     rf = smlmodule.rfregressors (X, y, features, verbose=False)
     #kn = knregressors (X, y, features)
     smlmodule.printcsvRF (fullfeatset, features, rf)
-
+ 
     for fn in fullfeatset:
         features = []
         for v in fullfeatset:
             if v != fn:
                 features.append(v)
-
+ 
         listostack = [features_dict[v] for v in features]
         X = np.column_stack (listostack)
         rf = smlmodule.rfregressors (X, y, features, verbose=False)
         smlmodule.printcsvRF (fullfeatset, features, rf)
-
+ 
     pairs = list(combinations(fullfeatset, 2))
     for p in pairs:
         features = []
         for v in fullfeatset:
             if v not in p:
                 features.append(v)
-
+ 
         listostack = [features_dict[v] for v in features]
         X = np.column_stack (listostack)
         rf = smlmodule.rfregressors (X, y, features, verbose=False)
         smlmodule.printcsvRF (fullfeatset, features, rf)
-
+ 
     tris = list(combinations(fullfeatset, 3))
     for p in tris:
         features = []
         for v in fullfeatset:
             if v not in p:
                 features.append(v)
-
+ 
         listostack = [features_dict[v] for v in features]
         X = np.column_stack (listostack)
         rf = smlmodule.rfregressors (X, y, features, verbose=False)
         smlmodule.printcsvRF (fullfeatset, features, rf)
+""" 
