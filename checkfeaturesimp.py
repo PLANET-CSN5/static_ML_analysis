@@ -79,7 +79,7 @@ def normalize_provname (indata, provcolumn, verbose):
 
 if __name__ == "__main__":
 
-    paperpath = "/usr/local/share/public/new_particulate_extended.csv"
+    paperpath = "particulate.csv"
     labelspath = "2020_2_24_to_2020_3_20.csv"
     deprividxpath = "ID11_prov21.xlsx"
     copernicopath = "name_region_province_statistics_2020.csv"
@@ -98,7 +98,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
     parser.add_argument("--labels-file", help="Specify Labels CSV file default: " +  labelspath , \
-        type=str, required=False, default=labelspath, dest="labelsath")
+        type=str, required=False, default=labelspath, dest="labelspath")
     parser.add_argument("--paper-data-file", help="Specify Setti Paper data CSV file default: " + paperpath , \
         type=str, required=False, default=paperpath, dest="paperpath")
     parser.add_argument("--depriv-index-file", help="Specify Depriv Index Excel file default: " + deprividxpath , \
@@ -114,7 +114,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     in_issdata = pd.read_csv(args.labelspath)
-    in_datapaper = pd.read_csv(args.paperpath)
+    in_datapaper = pd.read_csv(args.paperpath, sep=";")
     in_deprividx =  pd.ExcelFile(args.deprivpath).parse("Foglio1")
     in_copernico = pd.read_csv(args.copernicopath)
 
