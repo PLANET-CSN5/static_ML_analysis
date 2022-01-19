@@ -76,7 +76,8 @@ if __name__ == "__main__":
                      "2020_2_9" :  "2020_3_21", \
                     "2020_9_12" : "2020_10_15", \
                     "2020_9_12" : "2020_11_14", \
-                     "2020_6_1" : "2020_9_1" }
+                     "2020_6_1" : "2020_9_1", \
+                     "2020_1_1" : "2020_12_31" }
 
     for startend in startenddate.items():
 
@@ -85,21 +86,21 @@ if __name__ == "__main__":
            "ricoverati_dataprelievo,sintomatici_dataprelievo,terapiaintensiva_dataprelievo")
         fpout.write("id,prov,dataprelievo,deceduti_dataprelievo," + \
            "ricoverati_dataprelievo,sintomatici_dataprelievo,terapiaintensiva_dataprelievo\n")
+
+        sY = int(startend[0].split("_")[0])
+        sM = int(startend[0].split("_")[1])
+        sD = int(startend[0].split("_")[2])
+
+        eY = int(startend[1].split("_")[0])
+        eM = int(startend[1].split("_")[1])
+        eD = int(startend[1].split("_")[2])
+
+        sdate = datetime.date(sY, sM, sD)   # start date
+        edate = datetime.date(eY, eM, eD)   # end date
        
         for id in idtoprov:
             newdata = smlmodule.extract_given_prov (data, id)
-
-            sY = int(startend[0].split("_")[0])
-            sM = int(startend[0].split("_")[1])
-            sD = int(startend[0].split("_")[2])
-
-            eY = int(startend[1].split("_")[0])
-            eM = int(startend[1].split("_")[1])
-            eD = int(startend[1].split("_")[2])
-       
-            sdate = datetime.date(sY, sM, sD)   # start date
-            edate = datetime.date(eY, eM, eD)   # end date
-           
+          
             dataprelievo, datasintomi, datadiagnosi = smlmodule.extraxtnumber (data, id, sdate, edate)
             deceduti_dataprelievo, deceduti_datasintomi, deceduti_datadiagnosi = \
                 smlmodule.extraxtnumber (deceduti, id, sdate, edate)

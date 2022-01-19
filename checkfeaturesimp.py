@@ -8,11 +8,92 @@ from matplotlib import pyplot
 
 from itertools import combinations
 
+__provmaps__ = {
+    "bolzano_bozen": "bolzano",
+    "bolzanobozen": "bolzano",
+    "vibovalentia": "vibo_valentia",
+    "laquila": "l_aquila",
+    "laspezia": "la_spezia",
+    "barlettaandriatrani": "bat",
+    "ascolipiceno": "ascoli_piceno",
+    "carboniaiglesias": "carbonia",
+    "reggioemilia": "reggio_nell_emilia",
+    "pesarourbino": "pesaro",
+    "monzabrianza": "monza",
+    "reggiocalabria": "reggio_di_calabria",
+    "forlicesena": "forli",
+    "massacarrara": "massa",
+    "verbanocusioossola": "verbania",
+    "verbano_cusio_ossola": "verbania",
+    "massa_carrara": "massa",
+    "monza_e_della_brianza": "monza",
+    "pesaro_e_urbino": "pesaro",
+    "forli__cesena": "forli",
+    "barletta_andria_trani": "bat",
+    "sud_sardegna": "carbonia"
+}
+
+############################################################################################
+
+def filterprovname (inprov):
+    low = inprov.lower()
+    low = low.rstrip()
+    low = low.lstrip()
+    low = low.replace(" ", "_")
+    low = low.replace("'", "_")
+    low = low.replace("-", "_")
+
+    return low
+
+############################################################################################
+
+def normalize_provname (indata, provcolumn, verbose):
+
+    dict_data = {}  
+    for c in indata.columns:
+        if verbose:
+            print("  ", c)
+        if c != provcolumn:
+            dict_data[c] = []
+    dict_data["prov"] = []
+
+    for i, row in indata.iterrows():
+        for c in indata.columns:    
+            if c != provcolumn:
+                dict_data[c].append(row[c])
+            else:
+                low = filterprovname(row[c])
+                if low in __provmaps__:
+                    low = __provmaps__[low]
+
+                dict_data["prov"].append(low)
+
+    #for v in dict_data:
+    #    print(v, " ", len(dict_data[v]))
+
+    data = pd.DataFrame.from_dict(dict_data)
+
+    return data
+
+############################################################################################
+
 if __name__ == "__main__":
 
-    labelspath = "2402_to_1303.csv"
     paperpath = "/usr/local/share/public/new_particulate_extended.csv"
+    labelspath = "2020_2_24_to_2020_3_20.csv"
     deprividxpath = "ID11_prov21.xlsx"
+    copernicopath = "name_region_province_statistics_2020.csv"
+
+    pollutantsnames = "avg_wco_period1_2020,"+\
+        "avg_wnh3_period1_2020,"+\
+        "avg_wnmvoc_period1_2020,"+\
+        "avg_wno2_period1_2020,"+\
+        "avg_wno_period1_2020,"+\
+        "avg_wo3_period1_2020,"+\
+        "avg_wpans_period1_2020,"+\
+        "avg_wpm10_period1_2020,"+\
+        "avg_wpm2p5_period1_2020,"+\
+        "avg_wso2_period1_2020"
 
     parser = argparse.ArgumentParser()
 
@@ -22,44 +103,35 @@ if __name__ == "__main__":
         type=str, required=False, default=paperpath, dest="paperpath")
     parser.add_argument("--depriv-index-file", help="Specify Depriv Index Excel file default: " + deprividxpath , \
         type=str, required=False, default=deprividxpath, dest="deprivpath")
+    parser.add_argument("--copernico-data", help="Specify Copernico data file: " + copernicopath , \
+        type=str, required=False, default=copernicopath, dest="copernicopath")
     parser.add_argument("-v", "--verbose", help="Increase output verbosity", \
         default=False, action="store_true")
-    parser.add_argument("-c", "--checkdetails", help="Check a single models all detals dump graphs", \
+    parser.add_argument("-c", "--checkdetails", help="Check a single models all details dump graphs", \
         default=False, action="store_true")
+    parser.add_argument("-p", "--pollutantsnames", help="List of pollutants to be used comma separated default: " + \
+        pollutantsnames , default=pollutantsnames, type=str)
     args = parser.parse_args()
 
-    in_issdata = pd.read_csv(args.labelsath)
-    datapaper = pd.read_csv(args.paperpath)
+    in_issdata = pd.read_csv(args.labelspath)
+    in_datapaper = pd.read_csv(args.paperpath)
     in_deprividx =  pd.ExcelFile(args.deprivpath).parse("Foglio1")
+    in_copernico = pd.read_csv(args.copernicopath)
 
-    dict_issdata = {}  
-    print("ISS data: ") 
-    for c in in_issdata.columns:
-        print("  ", c)
-        dict_issdata[c] = []
-        
-    for i, row in in_issdata.iterrows():
-        for c in in_issdata.columns:    
-            if c != "prov":
-                dict_issdata[c].append(row[c])
-            else:
-                low = row[c].lower()
-                low = low.rstrip()
-                low = low.lstrip()
-                low = low.replace(" ", "_")
-                low = low.replace("'", "_")
-                low = low.replace("-", "_")
-                
-                dict_issdata[c].append(low)
-    
-    issdata = pd.DataFrame.from_dict(dict_issdata)
-    
-    #print(issdata[issdata["id"] == 1]["prov"].values[0])
+    print("ISS data ") 
+    issdata = normalize_provname(in_issdata, "prov", args.verbose)
+
+    print("Copernico data ") 
+    copernico = normalize_provname(in_copernico, "nome_ita", args.verbose)
+
+    print("Paper data ")
+    datapaper = normalize_provname(in_datapaper, "Province", args.verbose)
     
     dict_deprividx = {}
-    print("DrepivIdx name: ")
+    print("DrepivIdx name ")
     for c in in_deprividx.columns:
-        print("   ", c)   
+        if args.verbose:
+            print("   ", c)   
         dict_deprividx[c] = []
     dict_deprividx["prov"] = []
     
@@ -72,11 +144,16 @@ if __name__ == "__main__":
             dict_deprividx[c].append(row[c])
     
     deprividx = pd.DataFrame.from_dict(dict_deprividx)
-    
-    if args.verbose:
-        print("New Particolate: ")
-        for c in datapaper.columns:
-            print("   ", c)
+
+    #get unique provice list
+    provincelist = list(set(list(issdata["prov"].values)) & \
+        set(list(datapaper["prov"].values)) & \
+        set(list(deprividx["prov"].values)) & \
+        set(list(copernico["prov"].values)))
+
+    print("Province list: ")
+    for i, p in enumerate(provincelist):
+        print("  ", i+1, " ", p)
 
     issdata_dict = {}
     
@@ -109,7 +186,7 @@ if __name__ == "__main__":
 
 
     prinvincewithzero = set() 
-    province = datapaper["Province"].values
+    province = datapaper["prov"].values
 
     features_dict = {}
     
@@ -128,23 +205,24 @@ if __name__ == "__main__":
         ypropcasi[ln] = np.zeros(len(province))
                                     
     for i, prov in enumerate(province):
-        popolazione  = datapaper[datapaper["Province"] == prov]["Population"].values[0]
+        popolazione  = datapaper[datapaper["prov"] == prov]["Population"].values[0]
         
         features_dict["pm10"][i] = \
-          datapaper[datapaper["Province"] == prov]["9_29_feb_0.0_mean_pm10_ug/m3_2020"].values[0]
+          datapaper[datapaper["prov"] == prov]["9_29_feb_0.0_mean_pm10_ug/m3_2020"].values[0]
         features_dict["pm25"][i] = \
-          datapaper[datapaper["Province"] == prov]["9_29_feb_0.0_mean_pm2p5_ug/m3_2020"].values[0]
+          datapaper[datapaper["prov"] == prov]["9_29_feb_0.0_mean_pm2p5_ug/m3_2020"].values[0]
         features_dict["pm10ts"][i] = \
-          datapaper[datapaper["Province"] == prov]["9_29_feb_0.0_std_ts_pm10_n_2020"].values[0]   
+          datapaper[datapaper["prov"] == prov]["9_29_feb_0.0_std_ts_pm10_n_2020"].values[0]   
         features_dict["pm25ts"][i] = \
-          datapaper[datapaper["Province"] == prov]["9_29_feb_0.0_std_ts_pm2p5_n_2020"].values[0] 
+          datapaper[datapaper["prov"] == prov]["9_29_feb_0.0_std_ts_pm2p5_n_2020"].values[0] 
+
         features_dict["popolation"][i] = popolazione
         features_dict["density"][i] = \
-          datapaper[datapaper["Province"] == prov]["Density"].values[0]    
+          datapaper[datapaper["prov"] == prov]["Density"].values[0]    
         features_dict["commutersdensity"][i] = \
-          datapaper[datapaper["Province"] == prov]["CommutersDensity"].values[0]       
+          datapaper[datapaper["prov"] == prov]["CommutersDensity"].values[0]       
         features_dict["lat"][i] = \
-          datapaper[datapaper["Province"] == prov]["Lat"].values[0]       
+          datapaper[datapaper["prov"] == prov]["Lat"].values[0]       
         features_dict["depriv"][i] = \
           deprividx[deprividx["prov"] == prov]["ID_2011"].values[0]
 
