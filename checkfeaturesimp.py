@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np 
 import argparse
 import math
+import sys
 
 import smlmodule
 from matplotlib import pyplot
@@ -78,6 +79,12 @@ def normalize_provname (indata, provcolumn, verbose):
 ############################################################################################
 
 if __name__ == "__main__":
+
+    #period1 = ['2020-02-09', '2020-02-28'] # YEAR-MONTH-DAY --->>> CASI COVID ['2020-02-24', '2020-03-20']
+    #period2 = ['2020-02-09', '2020-03-07'] # YEAR-MONTH-DAY --->>> CASI COVID ['2020-02-09', '2020-03-21']
+    #period3 = ['2020-08-29', '2020-09-01'] # YEAR-MONTH-DAY --->>> CASI COVID ['2020-09-12', '2020-10-15']
+    #period4 = ['2020-09-12', '2020-11-01'] # YEAR-MONTH-DAY --->>> CASI COVID ['2020-09-12', '2020-11-14']
+    #period5 = ['2020-05-15', '2020-08-15'] # YEAR-MONTH-DAY --->>> CASI COVID ['2020-06-01', '2020-09-01']
 
     paperpath = "particulate.csv"
     labelspath = "2020_2_24_to_2020_3_20.csv"
@@ -183,14 +190,17 @@ if __name__ == "__main__":
                                            ysintomi, \
                                            yricoverati, \
                                            yterapiaintensiva))
+
             exit(1)
+
+
     for label in ["dataprelievo", \
               "sintomatici_dataprelievo", \
               "deceduti_dataprelievo", \
               "ricoverati_dataprelievo", \
               "terapiaintensiva_dataprelievo"]:
 
-        print("Label: ", label)
+        print("Label: ", label, file=sys.stderr)
         
         features_dict = {}
         ylogpropcasi = []
@@ -205,7 +215,7 @@ if __name__ == "__main__":
                 ypropcasi.append(y/popolazione)
                 counter += 1
                 #print(i+1, " ", prov, " ", y, " ", popolazione)
-        print("  ", counter, " active province")
+        print("  ", counter, " active province", file=sys.stderr)
         
         # non pollutants features
         for fn in ("population", "density", "commutersdensity", "depriv", "lat"):
@@ -249,11 +259,12 @@ if __name__ == "__main__":
             fullfeatset.append(fn)
         fullfeatset.extend(["density", "commutersdensity", "depriv", "lat"])
         y = ylogpropcasi
-        print("")
-        print("Method , Avg. Train RMSE , Std. , Avg. Test RMSE , Std. , Full RMSE , ", end ="")
+        print("", file=sys.stderr)
+        print("Method , Avg. Train RMSE , Std. , Avg. Test RMSE , Std. , Full RMSE , ", \
+            file=sys.stderr, end ="")
         for i, f in enumerate(fullfeatset):
-            print (f + " , ", end="")
-        print(", Top ranked Features")
+            print (f + " , ", file=sys.stderr, end="")
+        print(", Top ranked Features", file=sys.stderr)
         
         features = fullfeatset
         listostack = [features_dict[v] for v in features]
@@ -261,7 +272,66 @@ if __name__ == "__main__":
         
         rf = smlmodule.rfregressors (X, y, features, verbose=False)
         #kn = knregressors (X, y, features)
-        smlmodule.printcsvRF (fullfeatset, features, rf)
+        top1, top2 = smlmodule.printcsvRF (fullfeatset, features, rf)
+        feattoprint = ""
+        for ftp in features:
+            feattoprint += ftp + " "
+        print("active province ", counter , ",", feattoprint, "," , \
+            rf[2], ",Log{"+label+"),", top1[0], " %4.2f"%top1[1], "," ,\
+            top2[0], " %4.2f"%top2[1])
+
+        for fn in fullfeatset:
+            features = []
+            for v in fullfeatset:
+                if v != fn:
+                    features.append(v)
+     
+            listostack = [features_dict[v] for v in features]
+            X = np.column_stack (listostack)
+            rf = smlmodule.rfregressors (X, y, features, verbose=False)
+            top1, top2 = smlmodule.printcsvRF (fullfeatset, features, rf)
+            feattoprint = ""
+            for ftp in features:
+                feattoprint += ftp + " "
+            print(" active province ", counter , ",", feattoprint, "," , \
+                rf[2], ",Log{"+label+"),", top1[0], " %4.2f"%top1[1], "," ,\
+                top2[0], " %4.2f"%top2[1])
+
+        pairs = list(combinations(fullfeatset, 2))
+        for p in pairs:
+            features = []
+            for v in fullfeatset:
+                if v not in p:
+                    features.append(v)
+     
+            listostack = [features_dict[v] for v in features]
+            X = np.column_stack (listostack)
+            rf = smlmodule.rfregressors (X, y, features, verbose=False)
+            top1, top2 = smlmodule.printcsvRF (fullfeatset, features, rf)
+            feattoprint = ""
+            for ftp in features:
+                feattoprint += ftp + " "
+            print(" active province ", counter , ",", feattoprint, "," , \
+                rf[2], ",Log{"+label+"),", top1[0], " %4.2f"%top1[1], "," ,\
+                top2[0], " %4.2f"%top2[1])
+     
+        tris = list(combinations(fullfeatset, 3))
+        for p in tris:
+            features = []
+            for v in fullfeatset:
+                if v not in p:
+                    features.append(v)
+     
+            listostack = [features_dict[v] for v in features]
+            X = np.column_stack (listostack)
+            rf = smlmodule.rfregressors (X, y, features, verbose=False)
+            top1, top2 = smlmodule.printcsvRF (fullfeatset, features, rf)
+            feattoprint = ""
+            for ftp in features:
+                feattoprint += ftp + " "
+            print(" active province ", counter , ",",feattoprint, "," , \
+                rf[2], ",Log{"+label+") , ", top1[0], " %4.2f"%top1[1], "," ,\
+                top2[0], " %4.2f"%top2[1])
 
 """ 
     prinvincewithzero = set() 

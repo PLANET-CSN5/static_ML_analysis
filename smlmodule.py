@@ -3,6 +3,7 @@ import numpy as np
 import datetime
 import sklearn
 import math
+import sys
 
 from sklearn.inspection import permutation_importance
 from sklearn.model_selection import train_test_split
@@ -317,18 +318,24 @@ def printcsvRF (fullfeatset, features, rf):
     kstr = ""
     for f in features:
         kstr += f + "_"
-    print(kstr + "RF , ", end = "")
+    print(kstr + "RF , ", file=sys.stderr, end = "")
     print("%10.5f , %10.5f , %10.5f , %10.5f , %10.5f , "% \
-          (rf[0][0], rf[0][1], rf[1][0], rf[1][1], rf[2]), end="")
+          (rf[0][0], rf[0][1], rf[1][0], rf[1][1], rf[2]), file=sys.stderr, end="")
 
     featvals = {}
     for i, k in enumerate(fullfeatset):
         if k in rf[3]:
-            print("%10.5f , "%(rf[3][k]), end="")
+            print("%10.5f , "%(rf[3][k]), file=sys.stderr, end="")
             featvals[k] = rf[3][k]
         else:
-            print("0.0 , ", end="")
-    featsorted = {k: v for k, v in sorted(featvals.items(), key=lambda item: item[1])}
-    print (list(featsorted.items())[-1][0], " ", list(featsorted.items())[-2][0])
+            print("0.0 , ", file=sys.stderr, end="")
+
+    featsorted = {k: v for k, v in sorted(featvals.items(), \
+        key=lambda item: item[1])}
+    
+    print (list(featsorted.items())[-1][0], " ", list(featsorted.items())[-2][0], \
+        file=sys.stderr )
+
+    return list(featsorted.items())[-1], list(featsorted.items())[-2]
 
 ##################################################################################33
