@@ -100,7 +100,17 @@ if __name__ == "__main__":
         "avg_wpans_period1_2020,"+\
         "avg_wpm10_period1_2020,"+\
         "avg_wpm2p5_period1_2020,"+\
-        "avg_wso2_period1_2020"
+        "avg_wso2_period1_2020," +\
+        "sum_wco_ex_q75_period1_2020," +\
+        "sum_wnh3_ex_q75_period1_2020," +\
+        "sum_wnmvoc_ex_q75_period1_2020," +\
+        "sum_wno2_ex_q75_period1_2020," +\
+        "sum_wno_ex_q75_period1_2020," +\
+        "sum_wo3_ex_q75_period1_2020," +\
+        "sum_wpans_ex_q75_period1_2020," +\
+        "sum_wpm10_ex_q75_period1_2020," +\
+        "sum_wpm2p5_ex_q75_period1_2020," +\
+        "sum_wso2_ex_q75_period1_2020"
 
     parser = argparse.ArgumentParser()
 
