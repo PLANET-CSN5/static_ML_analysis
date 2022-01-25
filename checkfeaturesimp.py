@@ -4,7 +4,6 @@ import argparse
 import math
 import sys
 
-from scipy.stats import pearsonr
 
 import smlmodule
 

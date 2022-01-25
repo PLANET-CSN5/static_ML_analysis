@@ -5,6 +5,7 @@ import math
 import sys
 
 from scipy.stats import pearsonr
+import matplotlib.pyplot as plt 
 
 import smlmodule
 
@@ -121,8 +122,20 @@ if __name__ == "__main__":
         "ricoverati_dataprelievo,"+ \
         "terapiaintensiva_dataprelievo"
 
-    featurestobeused = "" # will reoove hohghily correlated features
-    featurestoremove = "" #will remove those features
+    featurestobeused = "density," + \
+        "commutersdensity," + \
+        "lat," + \
+        "depriv," + \
+        "avg_wco_period1_2020,"+\
+        "avg_wnh3_period1_2020,"+\
+        "avg_wnmvoc_period1_2020,"+\
+        "avg_wno2_period1_2020,"+\
+        "avg_wno_period1_2020,"+\
+        "avg_wo3_period1_2020,"+\
+        "avg_wpans_period1_2020,"+\
+        "avg_wpm10_period1_2020,"+\
+        "avg_wpm2p5_period1_2020,"+\
+        "avg_wso2_period1_2020"
 
     parser = argparse.ArgumentParser()
 
@@ -142,10 +155,8 @@ if __name__ == "__main__":
         pollutantsnames , default=pollutantsnames, type=str)
     parser.add_argument("-l", "--alllabels", help="List of all labels to be used comma separated default: " + \
         pollutantsnames , default=allpossiblelabels, type=str)
-    parser.add_argument("--featstouse", help="List of all features to use will remove correlated comma separated default: " + \
+    parser.add_argument("--featstouse", help="List of all features to use will remove correlated ordered by priority comma separated default: " + \
         pollutantsnames , default=featurestobeused, type=str)
-    parser.add_argument("--featstorm", help="List of all features to remove comma separated default: " + \
-        pollutantsnames , default=featurestoremove, type=str)
  
     args = parser.parse_args()
 
@@ -296,9 +307,32 @@ if __name__ == "__main__":
                         highcorrelated[v1].append(v2)
                         #print(v1, v2, corr)
 
-            if len(highcorrelated[v1]) > 0:
-                print(v1)
-                for fntr in highcorrelated[v1]:
-                    print("   ", fntr)
+            #if len(highcorrelated[v1]) > 0:
+            #    print(v1)
+            #    for fntr in highcorrelated[v1]:
+            #        print("   ", fntr)
+
+        features = []
+        for fn in featurestobeused.split(","):
+            canadd = True
+            for fnin in features:
+                if fn in highcorrelated[fnin]:
+                    canadd = False
+                    break
+
+            if canadd:
+                print("Using: ", fn)
+                features.append(fn)
+            #else:
+            #    print(fn, " correlated removing")
+
+        listostack = [features_dict[v] for v in features]
+        X = np.column_stack (listostack)
+ 
+        Y = ylogpropcasi
+        #print(y.shape)
+        plt.figure(figsize=(5,5))
+        smlmodule.rfregressors (X, Y , features, plotname="RFmodel_"+label, N=50)
+        #smlmodule.knregressors (X, Y , features, N=50)
         
 
