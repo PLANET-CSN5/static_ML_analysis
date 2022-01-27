@@ -91,7 +91,7 @@ if __name__ == "__main__":
     #period5 = ['2020-05-15', '2020-08-15'] # YEAR-MONTH-DAY --->>> CASI COVID ['2020-06-01', '2020-09-01']
 
     paperpath = "particulate.csv"
-    labelspath = "2020_2_24_to_2020_3_20.csv"
+    labelspath = "2020_2_24_to_2020_3_13.csv"
     deprividxpath = "ID11_prov21.xlsx"
     copernicopath = "name_region_province_statistics_2020.csv"
 
@@ -236,7 +236,7 @@ if __name__ == "__main__":
 
     for label in args.alllabels.split(","):
 
-        print("Label: ", label, file=sys.stderr)
+        print("Label: ", label)
         
         features_dict = {}
         ylogpropcasi = []
@@ -251,7 +251,7 @@ if __name__ == "__main__":
                 ypropcasi.append(y/popolazione)
                 counter += 1
                 #print(i+1, " ", prov, " ", y, " ", popolazione)
-        print("  ", counter, " active province", file=sys.stderr)
+        print("  ", counter, " active province")
         
         # non pollutants features
         for fn in ("population", "density", "commutersdensity", "depriv", "lat"):

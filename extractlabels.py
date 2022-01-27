@@ -5,14 +5,6 @@ import argparse
 
 import smlmodule
 
-# Range date
-#           Inquinamento                 Casi  
-# period1 = ['2020-02-09', '2020-03-07'] ['2020-02-09', '2020-03-07']  YEAR-MONTH-DAY
-# period2 = ['2020-02-09', '2020-03-21'] # YEAR-MONTH-DAY
-# period3 = ['2020-09-12', '2020-11-01'] # YEAR-MONTH-DAY
-# period4 = ['2020-09-12', '2020-11-14'] # YEAR-MONTH-DAY
- 
-
 if __name__ == "__main__":
 
     tabellecodicipath = "/usr/local/share/public/TabelleCodici.xlsx"
@@ -72,7 +64,7 @@ if __name__ == "__main__":
     print("Ricoverati        :", len(ricoverati))
     print("Sintomatici       :", len(sintomatici))
     
-    startenddate = {"2020_2_24" :  "2020_3_20", \
+    startenddate = {"2020_2_24" :  "2020_3_13", \
                      "2020_2_9" :  "2020_3_21", \
                     "2020_9_12" : "2020_10_15", \
                     "2020_9_12" : "2020_11_14", \
