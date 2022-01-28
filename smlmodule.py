@@ -165,7 +165,8 @@ def rfregressors (Xin, yin, features, plotname="RFmodel", N = 50, verbose=True):
     # fit the model
     model.fit(Xin, yin)
     # perform permutation importance
-    results = permutation_importance(model, Xin, yin, scoring='neg_mean_squared_error')
+    results = permutation_importance(model, Xin, yin, n_repeats=50, random_state=0, \
+        scoring='neg_mean_squared_error')
     # get importance
     importance = results.importances_mean
     # summarize feature importance
