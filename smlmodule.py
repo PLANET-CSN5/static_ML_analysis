@@ -141,7 +141,10 @@ def rfregressors (Xin, yin, features, plotname="RFmodel", N = 50, verbose=True):
             print('Feature: %s, Score: %.5f' % (features[i],v))
  
         # plot feature importance
+        pyplot.title("Features importance from model")
         pyplot.bar(features, importance)
+        pyplot.xticks(rotation=45)
+        pyplot.gcf().subplots_adjust(bottom=0.30)
         #pyplot.show()
         pyplot.savefig(plotname+"_feats_imp_frommodel.png")
  
@@ -184,7 +187,10 @@ def rfregressors (Xin, yin, features, plotname="RFmodel", N = 50, verbose=True):
 
     if verbose:
         # plot feature importance
+        pyplot.title("Features importance from Permutation")
         pyplot.bar(features, importance)
+        pyplot.xticks(rotation=45)
+        pyplot.gcf().subplots_adjust(bottom=0.30)
         #pyplot.show()
         pyplot.savefig(plotname+"_feats_imp_frompermutation.png")
 

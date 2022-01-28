@@ -135,7 +135,6 @@ if __name__ == "__main__":
         "avg_wno_period1_2020,"+\
         "avg_wo3_period1_2020,"+\
         "avg_wpans_period1_2020,"+\
-
         "avg_wso2_period1_2020"
 
     parser = argparse.ArgumentParser()
