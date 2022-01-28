@@ -126,6 +126,8 @@ if __name__ == "__main__":
         "commutersdensity," + \
         "lat," + \
         "depriv," + \
+        "avg_wpm10_period1_2020,"+\
+        "avg_wpm2p5_period1_2020,"+\
         "avg_wco_period1_2020,"+\
         "avg_wnh3_period1_2020,"+\
         "avg_wnmvoc_period1_2020,"+\
@@ -133,8 +135,7 @@ if __name__ == "__main__":
         "avg_wno_period1_2020,"+\
         "avg_wo3_period1_2020,"+\
         "avg_wpans_period1_2020,"+\
-        "avg_wpm10_period1_2020,"+\
-        "avg_wpm2p5_period1_2020,"+\
+
         "avg_wso2_period1_2020"
 
     parser = argparse.ArgumentParser()
