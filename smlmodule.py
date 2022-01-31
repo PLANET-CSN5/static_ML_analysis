@@ -188,6 +188,7 @@ def rfregressors (Xin, yin, features, plotname="RFmodel", N = 50, verbose=True):
 
     if verbose:
         # plot feature importance
+        pyplot.clf()
         pyplot.title("Features importance from Permutation")
         pyplot.bar(features, importance)
         pyplot.xticks(rotation=45, ha="right")
