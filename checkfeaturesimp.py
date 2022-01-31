@@ -80,14 +80,16 @@ def normalize_provname (indata, provcolumn, verbose):
 
 if __name__ == "__main__":
 
-    #period1 = ['2020-02-09', '2020-02-28'] # YEAR-MONTH-DAY --->>> CASI COVID ['2020-02-24', '2020-03-20']
-    #period2 = ['2020-02-09', '2020-03-07'] # YEAR-MONTH-DAY --->>> CASI COVID ['2020-02-09', '2020-03-21']
-    #period3 = ['2020-08-29', '2020-09-01'] # YEAR-MONTH-DAY --->>> CASI COVID ['2020-09-12', '2020-10-15']
-    #period4 = ['2020-09-12', '2020-11-01'] # YEAR-MONTH-DAY --->>> CASI COVID ['2020-09-12', '2020-11-14']
-    #period5 = ['2020-05-15', '2020-08-15'] # YEAR-MONTH-DAY --->>> CASI COVID ['2020-06-01', '2020-09-01']
+    """
+    period1 = ['2020-02-09', '2020-02-28'] # YEAR-MONTH-DAY --->>> CASI COVID ['2020-02-24', '2020-03-13']
+    period2 = ['2020-02-09', '2020-03-06] # YEAR-MONTH-DAY --->>> CASI COVID ['2020-02-09', '2020-03-21']
+    period3 = ['2020-08-29', '2020-09-01'] # YEAR-MONTH-DAY --->>> CASI COVID ['2020-09-12', '2020-10-15']
+    period4 = ['2020-08-29', '2020-10-30'] # YEAR-MONTH-DAY --->>> CASI COVID ['2020-09-12', '2020-11-14']
+    period5 = ['2020-05-15', '2020-08-15'] # YEAR-MONTH-DAY --->>> CASI COVID ['2020-06-01', '2020-09-01']
+    """
 
     paperpath = "particulate.csv"
-    labelspath = "2020_2_24_to_2020_3_20.csv"
+    labelspath = "2020_2_24_period1_to_2020_3_20.csv"
     deprividxpath = "ID11_prov21.xlsx"
     copernicopath = "name_region_province_statistics_2020.csv"
 
