@@ -238,8 +238,8 @@ if __name__ == "__main__":
 
     for label in args.alllabels.split(","):
 
-        print("Label: ", label)
-        
+        print("===========================================================")
+    
         features_dict = {}
         ylogpropcasi = []
         ypropcasi = []
@@ -253,7 +253,8 @@ if __name__ == "__main__":
                 ypropcasi.append(y/popolazione)
                 counter += 1
                 #print(i+1, " ", prov, " ", y, " ", popolazione)
-        print("  ", counter, " active province")
+        print("Label: ", label, " with ", counter, " active province")
+        print("")
         
         # non pollutants features
         for fn in ("population", "density", "commutersdensity", "depriv", "lat"):
@@ -329,6 +330,7 @@ if __name__ == "__main__":
                 features.append(fn)
             #else:
             #    print(fn, " correlated removing")
+        print(" ")
 
         listostack = [features_dict[v] for v in features]
         X = np.column_stack (listostack)
@@ -338,5 +340,5 @@ if __name__ == "__main__":
         plt.figure(figsize=(5,5))
         smlmodule.rfregressors (X, Y , features, plotname="RFmodel_"+label, N=50)
         #smlmodule.knregressors (X, Y , features, N=50)
-        
+        print("===========================================================")
 

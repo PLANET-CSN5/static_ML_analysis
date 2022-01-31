@@ -109,7 +109,6 @@ def rfregressors (Xin, yin, features, plotname="RFmodel", N = 50, verbose=True):
     if verbose:     
         print("Training set average RMSE: ", trainavgrmse[0], trainavgrmse[1])
         print("    Test set average RMSE: ", testavgrmse[0], testavgrmse[1])
-        print(" ")
       
     model = RandomForestRegressor()
  
@@ -119,9 +118,12 @@ def rfregressors (Xin, yin, features, plotname="RFmodel", N = 50, verbose=True):
     y_pred = model.predict(Xin)
  
     mse = sklearn.metrics.mean_squared_error(yin, y_pred)
+    r2s = sklearn.metrics.r2_score(yin, y_pred)
+
     rmse = math.sqrt(mse)
     if verbose:
-        print("Fullset RMSE: ", rmse)
+        print("             Fullset RMSE: ", rmse)
+        print("                       R2: ", r2s)
     
     fullsetrmse = rmse
  
