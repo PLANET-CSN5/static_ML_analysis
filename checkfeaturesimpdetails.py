@@ -114,9 +114,9 @@ if __name__ == "__main__":
         "sum_wpans_ex_q75_period1_2020," +\
         "sum_wpm10_ex_q75_period1_2020," +\
         "sum_wpm2p5_ex_q75_period1_2020," +\
+        "sum_wo3_ex_q75_period1_2020," + \
+        "sum_wco_ex_q75_period1_2020," + \
         "sum_wso2_ex_q75_period1_2020"
-#       "sum_wo3_ex_q75_period1_2020," +\
-#       "sum_wco_ex_q75_period1_2020," +\ all zeros
 
     allpossiblelabels = "dataprelievo," + \
         "sintomatici_dataprelievo,"+ \
@@ -238,7 +238,7 @@ if __name__ == "__main__":
 
     for label in args.alllabels.split(","):
 
-        print("===========================================================")
+        print("==============================================================================")
     
         features_dict = {}
         ylogpropcasi = []
@@ -294,13 +294,18 @@ if __name__ == "__main__":
                 i = i + 1
 
         # nomalize values
+        new_features_dict = {}
         for fn in features_dict:
             #print(fn)
             abs_max = np.amax(np.abs(features_dict[fn]))
             if abs_max == 0.0:
-                print(fn, " ", features_dict[fn])
-            features_dict[fn] = features_dict[fn] * (1.0 / abs_max)
-        
+                print(fn, " will be removed ")
+                print (features_dict[fn])
+            else:
+                new_features_dict[fn] = features_dict[fn] * (1.0 / abs_max)
+        print("")
+        features_dict = new_features_dict
+
         highcorrelated = {}
         for i1, v1 in enumerate(features_dict):
             highcorrelated[v1] = []
@@ -326,7 +331,7 @@ if __name__ == "__main__":
                     break
 
             if canadd:
-                print("Using: ", fn)
+                print("Using: %30s"%fn)
                 features.append(fn)
             #else:
             #    print(fn, " correlated removing")
@@ -340,5 +345,5 @@ if __name__ == "__main__":
         plt.figure(figsize=(5,5))
         smlmodule.rfregressors (X, Y , features, plotname="RFmodel_"+label, N=50)
         #smlmodule.knregressors (X, Y , features, N=50)
-        print("===========================================================")
+        print("==============================================================================")
 
