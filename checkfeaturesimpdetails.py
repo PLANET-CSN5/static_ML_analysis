@@ -242,18 +242,21 @@ if __name__ == "__main__":
     
         features_dict = {}
         ylogpropcasi = []
-        ypropcasi = []
-        
+        #ypropcasi = []
+
+        print("Label: ", label)
+        print("==============================================================================")
+
         counter = 0
         for i, prov in enumerate(provincelist):
             y = issdata[issdata["prov"] == prov][label].values[0]
             if y > 0.0:
                 popolazione  = datapaper[datapaper["prov"] == prov]["Population"].values[0]
                 ylogpropcasi.append(math.log(y/popolazione))
-                ypropcasi.append(y/popolazione)
+                #ypropcasi.append(y/popolazione)
                 counter += 1
-                #print(i+1, " ", prov, " ", y, " ", popolazione)
-        print("Label: ", label, " with ", counter, " active province")
+                print("  %20s active [%8.1f %10.1f]"%(prov, y,popolazione))
+        print(counter, " active province")
         print("")
         
         # non pollutants features
@@ -333,8 +336,8 @@ if __name__ == "__main__":
             if canadd:
                 print("Using: %30s"%fn)
                 features.append(fn)
-            #else:
-            #    print(fn, " correlated removing")
+            else:
+                print("  corralted removing %30s"%fn)
         print(" ")
 
         listostack = [features_dict[v] for v in features]
