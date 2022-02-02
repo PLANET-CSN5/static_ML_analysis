@@ -244,18 +244,20 @@ if __name__ == "__main__":
         ylogpropcasi = []
         #ypropcasi = []
 
-        print("Label: ", label)
+        print("Label: Log(", label, "/popolazione)")
         print("==============================================================================")
-
+        print("  %20s         %8s %2s "%("Nome", "Y", "popolazione"))
         counter = 0
         for i, prov in enumerate(provincelist):
             y = issdata[issdata["prov"] == prov][label].values[0]
             if y > 0.0:
-                popolazione  = datapaper[datapaper["prov"] == prov]["Population"].values[0]
+                popolazione = datapaper[datapaper["prov"] == prov]["Population"].values[0]
                 ylogpropcasi.append(math.log(y/popolazione))
                 #ypropcasi.append(y/popolazione)
                 counter += 1
-                print("  %20s active [%8.1f %10.1f]"%(prov, y,popolazione))
+                print("  %20s active [%8.1f %12.1f]"%(prov, y, popolazione))
+            else:
+                print("  %20s    del [%8.1f %12.1f]"%(prov, y, popolazione))
         print(counter, " active province")
         print("")
         
