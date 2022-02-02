@@ -11,7 +11,7 @@ import smlmodule
 
 from itertools import combinations
 
-LIMIT = 0.9
+LIMIT = 0.95
 
 __provmaps__ = {
     "bolzano_bozen": "bolzano",
@@ -124,19 +124,20 @@ if __name__ == "__main__":
         "ricoverati_dataprelievo,"+ \
         "terapiaintensiva_dataprelievo"
 
+    # metto No2 in alto come priorita' vedi lavori segnalati da Stracci
     featurestobeused = "density," + \
         "commutersdensity," + \
         "lat," + \
         "depriv," + \
         "avg_wpm10_period1_2020,"+\
         "avg_wpm2p5_period1_2020,"+\
-        "avg_wco_period1_2020,"+\
-        "avg_wnh3_period1_2020,"+\
-        "avg_wnmvoc_period1_2020,"+\
         "avg_wno2_period1_2020,"+\
         "avg_wno_period1_2020,"+\
-        "avg_wo3_period1_2020,"+\
+        "avg_wnh3_period1_2020,"+\
         "avg_wpans_period1_2020,"+\
+        "avg_wnmvoc_period1_2020,"+\
+        "avg_wo3_period1_2020,"+\
+        "avg_wco_period1_2020,"+\
         "avg_wso2_period1_2020"
 
     parser = argparse.ArgumentParser()
@@ -235,31 +236,38 @@ if __name__ == "__main__":
 
             exit(1)
 
+    prescript = "rf_model_"
+    for ilabel, label in enumerate(args.alllabels.split(",")):
 
-    for label in args.alllabels.split(","):
+        print("Running ", label , " [ ", ilabel+1 ," of ", \
+            len(args.alllabels.split(",")), "]")
 
-        print("==============================================================================")
+        pout = open(prescript+label+".txt", "w")
+
+        print("==============================================================================", 
+            file=pout)
     
         features_dict = {}
         ylogpropcasi = []
         #ypropcasi = []
 
-        print("Label: Log(", label, "/popolazione)")
-        print("==============================================================================")
-        print("  %20s         %8s %2s "%("Nome", "Y", "popolazione"))
+        print("Label: Log(", label, "/popolazione)",file=pout)
+        print("==============================================================================",
+            file=pout)
+        print("  %20s         %8s %2s "%("Nome", "Y", "popolazione"),file=pout)
         counter = 0
         for i, prov in enumerate(provincelist):
             y = issdata[issdata["prov"] == prov][label].values[0]
+            popolazione = datapaper[datapaper["prov"] == prov]["Population"].values[0]
             if y > 0.0:
-                popolazione = datapaper[datapaper["prov"] == prov]["Population"].values[0]
                 ylogpropcasi.append(math.log(y/popolazione))
                 #ypropcasi.append(y/popolazione)
                 counter += 1
-                print("  %20s active [%8.1f %12.1f]"%(prov, y, popolazione))
+                print("  %20s active [%8.1f %12.1f]"%(prov, y, popolazione),file=pout)
             else:
-                print("  %20s    del [%8.1f %12.1f]"%(prov, y, popolazione))
-        print(counter, " active province")
-        print("")
+                print("  %20s    del [%8.1f %12.1f]"%(prov, y, popolazione),file=pout)
+        print(counter, " active province",file=pout)
+        print("",file=pout)
         
         # non pollutants features
         for fn in ("population", "density", "commutersdensity", "depriv", "lat"):
@@ -304,11 +312,11 @@ if __name__ == "__main__":
             #print(fn)
             abs_max = np.amax(np.abs(features_dict[fn]))
             if abs_max == 0.0:
-                print(fn, " will be removed ")
-                print (features_dict[fn])
+                print(fn, " will be removed ",file=pout)
+                print (features_dict[fn],file=pout)
             else:
                 new_features_dict[fn] = features_dict[fn] * (1.0 / abs_max)
-        print("")
+        print("",file=pout)
         features_dict = new_features_dict
 
         highcorrelated = {}
@@ -326,7 +334,8 @@ if __name__ == "__main__":
             #    print(v1)
             #    for fntr in highcorrelated[v1]:
             #        print("   ", fntr)
-
+        
+        removedfeatures = []
         features = []
         for fn in featurestobeused.split(","):
             canadd = True
@@ -336,11 +345,17 @@ if __name__ == "__main__":
                     break
 
             if canadd:
-                print("Using: %30s"%fn)
+                print("Using: %30s"%fn,file=pout)
                 features.append(fn)
             else:
-                print("  corralted removing %30s"%fn)
-        print(" ")
+                removedfeatures.append(fn)
+
+        print("",file=pout)
+        for fn in removedfeatures:
+            print("Highly correlated removing %30s"%fn,file=pout)
+            for cf  in highcorrelated[fn]:
+                print("     ",cf ,file=pout)
+        print(" ",file=pout)
 
         listostack = [features_dict[v] for v in features]
         X = np.column_stack (listostack)
@@ -348,7 +363,9 @@ if __name__ == "__main__":
         Y = ylogpropcasi
         #print(y.shape)
         plt.figure(figsize=(5,5))
-        smlmodule.rfregressors (X, Y , features, plotname="RFmodel_"+label, N=50)
+        smlmodule.rfregressors (X, Y , features, plotname=prescript+label, N=50, pout=pout)
         #smlmodule.knregressors (X, Y , features, N=50)
-        print("==============================================================================")
+        print("==============================================================================",
+            file=pout)
+        pout.close()
 

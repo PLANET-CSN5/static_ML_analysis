@@ -83,7 +83,9 @@ def extraxtnumber (indata, id, sdate, edate):
 
 ##################################################################################33
 
-def rfregressors (Xin, yin, features, plotname="RFmodel", N = 50, verbose=True):
+def rfregressors (Xin, yin, features, plotname="rf_model", N = 50, verbose=True,
+    pout=sys.stdout):
+
     train_rmse = []
     test_rmse = []
  
@@ -107,8 +109,10 @@ def rfregressors (Xin, yin, features, plotname="RFmodel", N = 50, verbose=True):
     testavgrmse = (np.average(test_rmse), np.std(test_rmse)) 
 
     if verbose:     
-        print("Training set average RMSE: %8.5f %8.5f "%(trainavgrmse[0], trainavgrmse[1]))
-        print("    Test set average RMSE: %8.5f %8.5f "%(testavgrmse[0], testavgrmse[1]))
+        print("Training set average RMSE: %8.5f %8.5f "%(trainavgrmse[0], trainavgrmse[1]), 
+            file=pout)
+        print("    Test set average RMSE: %8.5f %8.5f "%(testavgrmse[0], testavgrmse[1]),
+            file=pout)
       
     model = RandomForestRegressor()
  
@@ -122,8 +126,8 @@ def rfregressors (Xin, yin, features, plotname="RFmodel", N = 50, verbose=True):
 
     rmse = math.sqrt(mse)
     if verbose:
-        print("             Fullset RMSE: %8.5f"%rmse)
-        print("                       R2: %8.5f"%r2s)
+        print("             Fullset RMSE: %8.5f"%rmse, file=pout)
+        print("                       R2: %8.5f"%r2s, file=pout)
     
     fullsetrmse = rmse
  
@@ -136,11 +140,11 @@ def rfregressors (Xin, yin, features, plotname="RFmodel", N = 50, verbose=True):
     # get importance
     importance = model.feature_importances_
     if verbose:
-        print("")
-        print("Features importance from model: ")
+        print("",file=pout)
+        print("Features importance from model: ",file=pout)
         # summarize feature importance
         for i,v in enumerate(importance):
-            print('Feature: %30s, Score: %.5f' % (features[i],v))
+            print('Feature: %30s, Score: %.5f' % (features[i],v),file=pout)
  
         # plot feature importance
         pyplot.title("Features importance from model")
@@ -174,15 +178,15 @@ def rfregressors (Xin, yin, features, plotname="RFmodel", N = 50, verbose=True):
     # summarize feature importance
 
     if verbose:
-        print("")
-        print("Features importance from Permutation: ")
+        print("",file=pout)
+        print("Features importance from Permutation: ",file=pout)
 
     totfi = 0.0
     featimport = {}
     for i,v in enumerate(importance):
         featimport[features[i]] = v
         if verbose:
-            print('Feature: %30s, Score: %.5f' % (features[i],v))
+            print('Feature: %30s, Score: %.5f' % (features[i],v),file=pout)
         totfi += v
 
     for i,v in enumerate(importance):
