@@ -10,6 +10,9 @@ def extractcity (data, cityname):
     final = mfcittatotal[mfcittatotal["Stato civile"] == "totale"]
     
     results = final[final.ITTER107.str.contains("IT")]
+    if len(results["Value"].values) == 0:
+        return citta, 0
+
     popolazione = results["Value"].values[0]
     
     return citta, popolazione
@@ -27,7 +30,10 @@ def extraperage (citta, startage, endage=None):
         final = MFcitaETA[MFcitaETA["Stato civile"] == "totale"]
         results = final[final.ITTER107.str.contains("IT")]
         #print(val, results["Value"].values[0])
-        sum += results["Value"].values[0]
+        if len(results["Value"].values) == 0:
+            sum += 0
+        else:
+            sum += results["Value"].values[0]
         endage = 99
 
     for i in range (startage,endage+1):
@@ -37,7 +43,10 @@ def extraperage (citta, startage, endage=None):
         final = MFcitaETA[MFcitaETA["Stato civile"] == "totale"]
         results = final[final.ITTER107.str.contains("IT")]
         #print(val, results["Value"].values[0])
-        sum += results["Value"].values[0]
+        if len(results["Value"].values) == 0:
+            sum += 0
+        else:
+            sum += results["Value"].values[0]
     
     return sum 
     
@@ -71,12 +80,15 @@ def extractfulldata (data, cityname):
 
     #print(anziani/bambini)
 
+    if bambini == 0 and anziani == 0:
+        return 1, popolazione
+
     return  anziani/bambini, popolazione
 
 ##############################################################################
 
 if __name__ == "__main__":
-    data = pd.read_csv("popolazione2020_onlyIT.csv", sep="|")
+    data = pd.read_csv("popolazione2020.csv", sep="|", dtype={'ITTER107': str})
 
     listacitta = list(set(data["Territorio"].values))
     #print(listacitta)
