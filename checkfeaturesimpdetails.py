@@ -34,8 +34,10 @@ __provmaps__ = {
     "monza_e_della_brianza": "monza",
     "pesaro_e_urbino": "pesaro",
     "forli__cesena": "forli",
+    "bolzano_/_bozen": "bolzano",
     "barletta_andria_trani": "bat",
-    "sud_sardegna": "carbonia"
+    "sud_sardegna": "carbonia",
+    "forlì_cesena": "forli"
 }
 
 ############################################################################################
@@ -94,6 +96,7 @@ if __name__ == "__main__":
 
     paperpath = "particulate.csv"
     labelspath = "2020_2_24_period1_to_2020_3_13.csv"
+    agefeatspath = "provinceages.csv"
     deprividxpath = "ID11_prov21.xlsx"
     copernicopath = "name_region_province_statistics_2020.csv"
 
@@ -129,6 +132,7 @@ if __name__ == "__main__":
         "commutersdensity," + \
         "lat," + \
         "depriv," + \
+        "Ratio0200ver65," + \
         "avg_wpm10_period1_2020,"+\
         "avg_wpm2p5_period1_2020,"+\
         "avg_wno2_period1_2020,"+\
@@ -150,6 +154,9 @@ if __name__ == "__main__":
         type=str, required=False, default=deprividxpath, dest="deprivpath")
     parser.add_argument("--copernico-data", help="Specify Copernico data file: " + copernicopath , \
         type=str, required=False, default=copernicopath, dest="copernicopath")
+    parser.add_argument("--agefeats-data", help="Specify Age Features data file: " + agefeatspath , \
+        type=str, required=False, default=agefeatspath, dest="agefeatspath")
+ 
     parser.add_argument("-v", "--verbose", help="Increase output verbosity", \
         default=False, action="store_true")
     parser.add_argument("-c", "--checkdetails", help="Check a single models all details dump graphs", \
@@ -167,6 +174,8 @@ if __name__ == "__main__":
     in_datapaper = pd.read_csv(args.paperpath, sep=";")
     in_deprividx =  pd.ExcelFile(args.deprivpath).parse("Foglio1")
     in_copernico = pd.read_csv(args.copernicopath)
+    in_agefeatures = pd.read_csv(args.agefeatspath)
+    in_agefeatures = in_agefeatures[in_agefeatures.Population2020 != 0.0]
 
     print("ISS data ") 
     issdata = normalize_provname(in_issdata, "prov", args.verbose)
@@ -176,6 +185,9 @@ if __name__ == "__main__":
 
     print("Paper data ")
     datapaper = normalize_provname(in_datapaper, "Province", args.verbose)
+
+    print("Age features ")
+    agefeatures = normalize_provname(in_agefeatures, "Provincia", args.verbose)
     
     dict_deprividx = {}
     print("DrepivIdx name ")
@@ -195,11 +207,15 @@ if __name__ == "__main__":
     
     deprividx = pd.DataFrame.from_dict(dict_deprividx)
 
+    #print(set(list(copernico["prov"].values)) - set(list(agefeatures["prov"].values)))
+    #print(set(list(agefeatures["prov"].values)) -set(list(copernico["prov"].values)) )
+
     #get unique provice list
     provincelist = list(set(list(issdata["prov"].values)) & \
         set(list(datapaper["prov"].values)) & \
         set(list(deprividx["prov"].values)) & \
-        set(list(copernico["prov"].values)))
+        set(list(copernico["prov"].values)) & \
+        set(list(agefeatures["prov"].values)))
 
     print("Province list: ")
     for i, p in enumerate(provincelist):
@@ -259,25 +275,33 @@ if __name__ == "__main__":
         for i, prov in enumerate(provincelist):
             y = issdata[issdata["prov"] == prov][label].values[0]
             popolazione = datapaper[datapaper["prov"] == prov]["Population"].values[0]
-            if y > 0.0:
+            pop2 = agefeatures[agefeatures["prov"] == prov]["Population2020"].values[0]
+            diff = 100.0*(math.fabs(popolazione-pop2)/(popolazione))   
+            if y > 0.0 and diff < 5.0:
                 ylogpropcasi.append(math.log(y/popolazione))
                 #ypropcasi.append(y/popolazione)
                 counter += 1
                 print("  %20s active [%8.1f %12.1f]"%(prov, y, popolazione),file=pout)
             else:
-                print("  %20s    del [%8.1f %12.1f]"%(prov, y, popolazione),file=pout)
+                if y <= 0:
+                    print("  %20s    del [%8.1f %12.1f]"%(prov, y, popolazione),file=pout)
+                if diff > 5.0:
+                    print("  %20s    del [%10.1f %10.1f %8.2f]"%(prov, popolazione, pop2, diff), \
+                        file=pout)
         print(counter, " active province",file=pout)
         print("",file=pout)
         
         # non pollutants features
-        for fn in ("population", "density", "commutersdensity", "depriv", "lat"):
+        for fn in ("population", "density", "commutersdensity", "depriv", "lat", "Ratio0200ver65"):
             features_dict[fn] = np.zeros(counter, dtype="float64")
             
         i = 0
         for prov in provincelist:
             y = issdata[issdata["prov"] == prov][label].values[0]
-            if y > 0.0:
-                popolazione  = datapaper[datapaper["prov"] == prov]["Population"].values[0]
+            popolazione  = datapaper[datapaper["prov"] == prov]["Population"].values[0]
+            pop2 = agefeatures[agefeatures["prov"] == prov]["Population2020"].values[0]
+            diff = 100.0*(math.fabs(popolazione-pop2)/(popolazione))   
+            if y > 0.0 and diff < 5.0:
                 features_dict["population"][i] = popolazione
                 features_dict["density"][i] = \
                     datapaper[datapaper["prov"] == prov]["Density"].values[0]    
@@ -287,6 +311,8 @@ if __name__ == "__main__":
                     datapaper[datapaper["prov"] == prov]["Lat"].values[0]       
                 features_dict["depriv"][i] = \
                     deprividx[deprividx["prov"] == prov]["ID_2011"].values[0]
+                features_dict["Ratio0200ver65"][i] = \
+                    agefeatures[agefeatures["prov"] == prov]["Ratio0200ver65"].values[0]
                 
                 i = i + 1
                 
@@ -297,7 +323,10 @@ if __name__ == "__main__":
         i = 0
         for prov in provincelist:
             y = issdata[issdata["prov"] == prov][label].values[0]
-            if y > 0.0:
+            popolazione  = datapaper[datapaper["prov"] == prov]["Population"].values[0]
+            pop2 = agefeatures[agefeatures["prov"] == prov]["Population2020"].values[0]
+            diff = 100.0*(math.fabs(popolazione-pop2)/(popolazione))   
+            if y > 0.0 and diff < 5.0:
                 selected = copernico[copernico["prov"] == prov]
  
                 for fn in pollutantsnames.split(","):
