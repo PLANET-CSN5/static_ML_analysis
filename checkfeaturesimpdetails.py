@@ -95,31 +95,31 @@ if __name__ == "__main__":
     """
 
     paperpath = "particulate.csv"
-    labelspath = "2020_2_24_period1_to_2020_3_13.csv"
+    labelspath = "2020_2_9_period2_to_2020_3_21.csv"
     agefeatspath = "provinceages.csv"
     deprividxpath = "ID11_prov21.xlsx"
     copernicopath = "name_region_province_statistics_2020.csv"
 
-    pollutantsnames = "avg_wco_period1_2020,"+\
-        "avg_wnh3_period1_2020,"+\
-        "avg_wnmvoc_period1_2020,"+\
-        "avg_wno2_period1_2020,"+\
-        "avg_wno_period1_2020,"+\
-        "avg_wo3_period1_2020,"+\
-        "avg_wpans_period1_2020,"+\
-        "avg_wpm10_period1_2020,"+\
-        "avg_wpm2p5_period1_2020,"+\
-        "avg_wso2_period1_2020," +\
-        "sum_wnh3_ex_q75_period1_2020," +\
-        "sum_wnmvoc_ex_q75_period1_2020," +\
-        "sum_wno2_ex_q75_period1_2020," +\
-        "sum_wno_ex_q75_period1_2020," +\
-        "sum_wpans_ex_q75_period1_2020," +\
-        "sum_wpm10_ex_q75_period1_2020," +\
-        "sum_wpm2p5_ex_q75_period1_2020," +\
-        "sum_wo3_ex_q75_period1_2020," + \
-        "sum_wco_ex_q75_period1_2020," + \
-        "sum_wso2_ex_q75_period1_2020"
+    pollutantsnames = "avg_wco_period2_2020,"+\
+        "avg_wnh3_period2_2020,"+\
+        "avg_wnmvoc_period2_2020,"+\
+        "avg_wno2_period2_2020,"+\
+        "avg_wno_period2_2020,"+\
+        "avg_wo3_period2_2020,"+\
+        "avg_wpans_period2_2020,"+\
+        "avg_wpm10_period2_2020,"+\
+        "avg_wpm2p5_period2_2020,"+\
+        "avg_wso2_period2_2020," +\
+        "sum_wnh3_ex_q75_period2_2020," +\
+        "sum_wnmvoc_ex_q75_period2_2020," +\
+        "sum_wno2_ex_q75_period2_2020," +\
+        "sum_wno_ex_q75_period2_2020," +\
+        "sum_wpans_ex_q75_period2_2020," +\
+        "sum_wpm10_ex_q75_period2_2020," +\
+        "sum_wpm2p5_ex_q75_period2_2020," +\
+        "sum_wo3_ex_q75_period2_2020," + \
+        "sum_wco_ex_q75_period2_2020," + \
+        "sum_wso2_ex_q75_period2_2020"
 
     allpossiblelabels = "dataprelievo," + \
         "sintomatici_dataprelievo,"+ \
@@ -130,19 +130,18 @@ if __name__ == "__main__":
     # metto No2 in alto come priorita' vedi lavori segnalati da Stracci
     featurestobeused = "density," + \
         "commutersdensity," + \
-        "lat," + \
         "depriv," + \
         "Ratio0200ver65," + \
-        "avg_wpm10_period1_2020,"+\
-        "avg_wpm2p5_period1_2020,"+\
-        "avg_wno2_period1_2020,"+\
-        "avg_wno_period1_2020,"+\
-        "avg_wnh3_period1_2020,"+\
-        "avg_wpans_period1_2020,"+\
-        "avg_wnmvoc_period1_2020,"+\
-        "avg_wo3_period1_2020,"+\
-        "avg_wco_period1_2020,"+\
-        "avg_wso2_period1_2020"
+        "sum_wpm10_ex_q75_period2_2020,"+\
+        "sum_wpm2p5_ex_q75_period2_2020,"+\
+        "sum_wno2_ex_q75_period2_2020,"+\
+        "sum_wno_ex_q75_period2_2020,"+\
+        "sum_wnh3_ex_q75_period2_2020,"+\
+        "sum_wpans_ex_q75_period2_2020,"+\
+        "sum_wnmvoc_ex_q75_period2_2020,"+\
+        "sum_wo3_ex_q75_period2_2020,"+\
+        "sum_wco_ex_q75_period2_2020,"+\
+        "sum_wso2_ex_q75_period2_2020"
 
     parser = argparse.ArgumentParser()
 
@@ -162,13 +161,18 @@ if __name__ == "__main__":
     parser.add_argument("-c", "--checkdetails", help="Check a single models all details dump graphs", \
         default=False, action="store_true")
     parser.add_argument("-p", "--pollutantsnames", help="List of pollutants to be used comma separated default: " + \
-        pollutantsnames , default=pollutantsnames, type=str)
+        pollutantsnames , default=pollutantsnames, type=str, dest="pollutantsnames")
     parser.add_argument("-l", "--alllabels", help="List of all labels to be used comma separated default: " + \
-        pollutantsnames , default=allpossiblelabels, type=str)
+        allpossiblelabels , default=allpossiblelabels, type=str)
     parser.add_argument("--featstouse", help="List of all features to use will remove correlated ordered by priority comma separated default: " + \
-        pollutantsnames , default=featurestobeused, type=str)
+        featurestobeused , default=featurestobeused, type=str)
  
     args = parser.parse_args()
+
+    for fn in args.featstouse.split(","):
+        print("Features %30s to use"%fn)
+    for fn in args.pollutantsnames.split(","):
+        print("Features %30s is a Pollutant "%fn)
 
     in_issdata = pd.read_csv(args.labelspath)
     in_datapaper = pd.read_csv(args.paperpath, sep=";")
@@ -317,7 +321,7 @@ if __name__ == "__main__":
                 i = i + 1
                 
         # polluttats features
-        for fn in pollutantsnames.split(","):
+        for fn in args.pollutantsnames.split(","):
             features_dict[fn] = np.zeros(counter, dtype="float64")
             
         i = 0
@@ -329,7 +333,7 @@ if __name__ == "__main__":
             if y > 0.0 and diff < 5.0:
                 selected = copernico[copernico["prov"] == prov]
  
-                for fn in pollutantsnames.split(","):
+                for fn in args.pollutantsnames.split(","):
                     val = selected[fn].values[0]
                     features_dict[fn][i] = val 
                 
@@ -366,18 +370,19 @@ if __name__ == "__main__":
         
         removedfeatures = []
         features = []
-        for fn in featurestobeused.split(","):
-            canadd = True
-            for fnin in features:
-                if fn in highcorrelated[fnin]:
-                    canadd = False
-                    break
+        for fn in args.featstouse.split(","):
+            if fn in features_dict:
+                canadd = True
+                for fnin in features:
+                    if fn in highcorrelated[fnin]:
+                        canadd = False
+                        break
 
-            if canadd:
-                print("Using: %30s"%fn,file=pout)
-                features.append(fn)
-            else:
-                removedfeatures.append(fn)
+                if canadd:
+                    print("Using: %30s"%fn,file=pout)
+                    features.append(fn)
+                else:
+                    removedfeatures.append(fn)
 
         print("",file=pout)
         for fn in removedfeatures:
