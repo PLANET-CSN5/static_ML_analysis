@@ -1,4 +1,3 @@
-
 #2020_2_24_period1_to_2020_3_13.csv 
 #2020_2_9_period2_to_2020_3_21.csv
 #2020_9_12_period3_to_2020_10_15.csv
@@ -6,8 +5,8 @@
 #2020_6_1_period5_to_2020_9_1.csv
 #2020_1_1_period6_to_2020_12_31
 
-export FILENAME="2020_2_9_period2_to_2020_3_21.csv"
-export PERIOD="period2"
+export FILENAME="2020_6_1_period5_to_2020_9_1.csv"
+export PERIOD="period5"
 
 python3 checkfeaturesimpdetails.py \
   --labels-file="$FILENAME" \

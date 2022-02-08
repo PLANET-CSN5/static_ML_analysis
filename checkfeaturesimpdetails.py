@@ -173,6 +173,7 @@ if __name__ == "__main__":
         print("Features %30s to use"%fn)
     for fn in args.pollutantsnames.split(","):
         print("Features %30s is a Pollutant "%fn)
+    print("Labels file: ", args.labelspath)
 
     in_issdata = pd.read_csv(args.labelspath)
     in_datapaper = pd.read_csv(args.paperpath, sep=";")

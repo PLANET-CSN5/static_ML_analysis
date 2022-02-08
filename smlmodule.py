@@ -147,6 +147,7 @@ def rfregressors (Xin, yin, features, plotname="rf_model", N = 50, verbose=True,
             print('Feature: %30s, Score: %.5f' % (features[i],v),file=pout)
  
         # plot feature importance
+        pyplot.clf()
         pyplot.title("Features importance from model")
         pyplot.bar(features, importance)
         pyplot.xticks(rotation=45, ha="right")
