@@ -8,21 +8,21 @@ import smlmodule
 if __name__ == "__main__":
 
     tabellecodicipath = "/usr/local/share/public/TabelleCodici.xlsx"
-    issdatacsvpath = "/usr/local/share/public/ISS-COVID19.csv"
+    coviddatacsvpath = "/usr/local/share/public/COVID-COVID19.csv"
 
     parser = argparse.ArgumentParser()
 
     parser.add_argument("--tabelle-codici-file", help="Specify TabelleCodici Excel file default: " + tabellecodicipath , \
         type=str, required=False, default=tabellecodicipath, dest="tcpath")
-    parser.add_argument("--ISS-data-file", help="Specify ISS data CSV file default: " + issdatacsvpath , \
-        type=str, required=False, default=issdatacsvpath, dest="isspath")
+    parser.add_argument("--COVID-data-file", help="Specify COVID data CSV file default: " + coviddatacsvpath , \
+        type=str, required=False, default=coviddatacsvpath, dest="covidpath")
     
     args = parser.parse_args()
 
     tc = pd.ExcelFile(args.tcpath)
-    data = pd.read_csv(args.isspath)
+    data = pd.read_csv(args.covidpath)
     
-    print("Columns of ISS data: ")
+    print("Columns of COVID data: ")
     for c in data.columns:
         print ("  ", c)
     print("Sheets name of Tablla Codici: ")

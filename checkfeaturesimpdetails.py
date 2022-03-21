@@ -175,15 +175,15 @@ if __name__ == "__main__":
         print("Features %30s is a Pollutant "%fn)
     print("Labels file: ", args.labelspath)
 
-    in_issdata = pd.read_csv(args.labelspath)
+    in_coviddata = pd.read_csv(args.labelspath)
     in_datapaper = pd.read_csv(args.paperpath, sep=";")
     in_deprividx =  pd.ExcelFile(args.deprivpath).parse("Foglio1")
     in_copernico = pd.read_csv(args.copernicopath)
     in_agefeatures = pd.read_csv(args.agefeatspath)
     in_agefeatures = in_agefeatures[in_agefeatures.Population2020 != 0.0]
 
-    print("ISS data ") 
-    issdata = normalize_provname(in_issdata, "prov", args.verbose)
+    print("Covid data ") 
+    coviddata = normalize_provname(in_coviddata, "prov", args.verbose)
 
     print("Copernico data ") 
     copernico = normalize_provname(in_copernico, "nome_ita", args.verbose)
@@ -204,7 +204,7 @@ if __name__ == "__main__":
     
     for i, row in in_deprividx.iterrows():
         id = row["prov21"]
-        prov = issdata[issdata["id"] == id]["prov"].values[0]
+        prov = coviddata[coviddata["id"] == id]["prov"].values[0]
         #print(id, prov)
         dict_deprividx["prov"].append(prov)
         for c in in_deprividx.columns:
@@ -216,7 +216,7 @@ if __name__ == "__main__":
     #print(set(list(agefeatures["prov"].values)) -set(list(copernico["prov"].values)) )
 
     #get unique provice list
-    provincelist = list(set(list(issdata["prov"].values)) & \
+    provincelist = list(set(list(coviddata["prov"].values)) & \
         set(list(datapaper["prov"].values)) & \
         set(list(deprividx["prov"].values)) & \
         set(list(copernico["prov"].values)) & \
@@ -226,9 +226,9 @@ if __name__ == "__main__":
     for i, p in enumerate(provincelist):
         print("  ", i+1, " ", p)
 
-    #issdata_dict = {}
+    #coviddata_dict = {}
     # check on y values 
-    for i, row in issdata.iterrows():
+    for i, row in coviddata.iterrows():
 
         prov = row["prov"]
         
@@ -238,7 +238,7 @@ if __name__ == "__main__":
         yricoverati = row["ricoverati_dataprelievo"]
         yterapiaintensiva = row["terapiaintensiva_dataprelievo"]
         
-        #issdata_dict[prov] = { \
+        #coviddata_dict[prov] = { \
         #    "casi" : ycasi, \
         #    "casi_deceduti" : ydeceduti, \
         #    "casi_ricoverati" : yricoverati, \
@@ -278,7 +278,7 @@ if __name__ == "__main__":
         print("  %20s         %8s %2s "%("Nome", "Y", "popolazione"),file=pout)
         counter = 0
         for i, prov in enumerate(provincelist):
-            y = issdata[issdata["prov"] == prov][label].values[0]
+            y = coviddata[coviddata["prov"] == prov][label].values[0]
             popolazione = datapaper[datapaper["prov"] == prov]["Population"].values[0]
             pop2 = agefeatures[agefeatures["prov"] == prov]["Population2020"].values[0]
             diff = 100.0*(math.fabs(popolazione-pop2)/(popolazione))   
@@ -302,7 +302,7 @@ if __name__ == "__main__":
             
         i = 0
         for prov in provincelist:
-            y = issdata[issdata["prov"] == prov][label].values[0]
+            y = coviddata[coviddata["prov"] == prov][label].values[0]
             popolazione  = datapaper[datapaper["prov"] == prov]["Population"].values[0]
             pop2 = agefeatures[agefeatures["prov"] == prov]["Population2020"].values[0]
             diff = 100.0*(math.fabs(popolazione-pop2)/(popolazione))   
@@ -327,7 +327,7 @@ if __name__ == "__main__":
             
         i = 0
         for prov in provincelist:
-            y = issdata[issdata["prov"] == prov][label].values[0]
+            y = coviddata[coviddata["prov"] == prov][label].values[0]
             popolazione  = datapaper[datapaper["prov"] == prov]["Population"].values[0]
             pop2 = agefeatures[agefeatures["prov"] == prov]["Population2020"].values[0]
             diff = 100.0*(math.fabs(popolazione-pop2)/(popolazione))   
