@@ -84,7 +84,7 @@ def extraxtnumber (indata, id, sdate, edate):
 ##################################################################################33
 
 def rfregressors (Xin, yin, features, plotname="rf_model", N = 50, verbose=True,
-    pout=sys.stdout):
+    pout=sys.stdout, showplot=False):
 
     train_rmse = []
     test_rmse = []
@@ -134,8 +134,11 @@ def rfregressors (Xin, yin, features, plotname="rf_model", N = 50, verbose=True,
     if verbose:
         pyplot.title("ScatterPlot predicted vs True")
         pyplot.scatter(yin, y_pred)
-        #pyplot.show()
-        pyplot.savefig(plotname+"_scatter.png")
+
+        if showplot:
+            pyplot.show()
+        else:
+            pyplot.savefig(plotname+"_scatter.png")
  
     # get importance
     importance = model.feature_importances_
@@ -152,8 +155,10 @@ def rfregressors (Xin, yin, features, plotname="rf_model", N = 50, verbose=True,
         pyplot.bar(features, importance)
         pyplot.xticks(rotation=45, ha="right")
         pyplot.gcf().subplots_adjust(bottom=0.30)
-        #pyplot.show()
-        pyplot.savefig(plotname+"_feats_imp_frommodel.png")
+        if showplot:
+            pyplot.show()
+        else:
+            pyplot.savefig(plotname+"_feats_imp_frommodel.png")
  
     #Permutation feature importance is a model inspection technique that 
     # can be used for any fitted estimator when the data is tabular. This 
@@ -200,8 +205,10 @@ def rfregressors (Xin, yin, features, plotname="rf_model", N = 50, verbose=True,
         pyplot.bar(features, importance)
         pyplot.xticks(rotation=45, ha="right")
         pyplot.gcf().subplots_adjust(bottom=0.30)
-        #pyplot.show()
-        pyplot.savefig(plotname+"_feats_imp_frompermutation.png")
+        if showplot:
+            pyplot.show()
+        else:
+            pyplot.savefig(plotname+"_feats_imp_frompermutation.png")
 
     return trainavgrmse, testavgrmse, fullsetrmse, featimport
 
