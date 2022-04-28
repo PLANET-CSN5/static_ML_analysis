@@ -136,6 +136,7 @@ def rfregressors (Xin, yin, features, plotname="rf_model", N = 50, verbose=True,
         pyplot.scatter(yin, y_pred)
 
         if showplot:
+            pyplot.figure(figsize=(10,10))
             pyplot.show()
         else:
             pyplot.savefig(plotname+"_scatter.png")
@@ -156,6 +157,7 @@ def rfregressors (Xin, yin, features, plotname="rf_model", N = 50, verbose=True,
         pyplot.xticks(rotation=45, ha="right")
         pyplot.gcf().subplots_adjust(bottom=0.30)
         if showplot:
+            pyplot.figure(figsize=(10,10))
             pyplot.show()
         else:
             pyplot.savefig(plotname+"_feats_imp_frommodel.png")
@@ -206,6 +208,7 @@ def rfregressors (Xin, yin, features, plotname="rf_model", N = 50, verbose=True,
         pyplot.xticks(rotation=45, ha="right")
         pyplot.gcf().subplots_adjust(bottom=0.30)
         if showplot:
+            pyplot.figure(figsize=(10,10))
             pyplot.show()
         else:
             pyplot.savefig(plotname+"_feats_imp_frompermutation.png")
