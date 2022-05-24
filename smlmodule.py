@@ -9,6 +9,7 @@ from sklearn.inspection import permutation_importance
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.neighbors import KNeighborsRegressor
+from sklearn.model_selection import GridSearchCV
 
 from matplotlib import pyplot
 
@@ -80,6 +81,32 @@ def extraxtnumber (indata, id, sdate, edate):
     datadiagnosi = get_num_of_in_range (newdata, str(sdate), str(edate), "DATADIAGNOSI")
 
     return dataprelievo, datasintomi, datadiagnosi
+
+##################################################################################33
+
+def rfregressors_optimizer (Xin, yin, verbose=True):
+
+    n_estimators = [100, 300, 500, 800, 1200]
+    max_depth = [5, 8, 15, 25, 30]
+    min_samples_split = [2, 5, 10, 15, 100]
+    min_samples_leaf = [1, 2, 5, 10] 
+
+    hyperF = dict(n_estimators = n_estimators, max_depth = max_depth,  
+              min_samples_split = min_samples_split, 
+              min_samples_leaf = min_samples_leaf)
+ 
+    model = RandomForestRegressor()
+
+    gridF = GridSearchCV(model, hyperF, cv = 3, verbose = 1, 
+                      n_jobs = -1)
+
+    model.fit(Xin, yin)
+    bestF = gridF.fit(Xin, yin)
+
+    if verbose:
+        print(bestF.best_params_)
+
+    return bestF
 
 ##################################################################################33
 
@@ -216,6 +243,7 @@ def rfregressors (Xin, yin, features, plotname="rf_model", N = 50, verbose=True,
     return trainavgrmse, testavgrmse, fullsetrmse, featimport
 
 ##################################################################################33
+
 
 def knregressors (Xin, yin, features, plotname="KNmodel", N=50, verbose=True):
     train_rmse = []
