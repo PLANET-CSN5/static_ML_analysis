@@ -13,6 +13,8 @@ from sklearn.model_selection import GridSearchCV
 
 from matplotlib import pyplot
 
+from pprint import pprint
+
 ##################################################################################33
 
 def extract_given_prov (data, id):
@@ -84,16 +86,98 @@ def extraxtnumber (indata, id, sdate, edate):
 
 ##################################################################################33
 
+def rfregressors_custom_optimizer (Xin, yin, verbose=True):
+
+    n_estimators = [100, 300, 500, 800, 1200]
+    max_depth = [None, 5, 8, 15, 25, 30]
+    min_samples_split = [2, 5, 10, 15, 100]
+    min_samples_leaf = [1, 2, 5, 10] 
+    random_state = [1]
+    max_features = ['auto', 'sqrt']
+    bootstrap = [True, False]
+
+    hyperF = {"n_estimators" : n_estimators, 
+            "max_depth" : max_depth,  
+            "min_samples_split" : min_samples_split, 
+            "min_samples_leaf" : min_samples_leaf, 
+            "random_state" : random_state, 
+            "bootstrap" : bootstrap,
+            "max_features" : max_features}
+
+    besthyperF = {"n_estimators" : n_estimators, 
+            "max_depth" : max_depth,  
+            "min_samples_split" : min_samples_split, 
+            "min_samples_leaf" : min_samples_leaf, 
+            "random_state" : random_state, 
+            "bootstrap" : bootstrap,
+            "max_features" : max_features}
+
+
+
+    total = 1
+    for k in hyperF:
+        total *= len(hyperF[k])
+    counter = 1
+    bestmse = float("-inf")
+    for a in hyperF["n_estimators"]:
+        for b in  hyperF["max_depth"]:
+            for c in  hyperF["min_samples_split"]:
+                for d in  hyperF["min_samples_leaf"]:
+                    for e in  hyperF["random_state"]:
+                        for f in  hyperF["bootstrap"]:
+                            for g in  hyperF["max_features"]:
+                                model = RandomForestRegressor(
+                                    n_estimators=a,
+                                    max_depth=b,
+                                    min_samples_split=c,
+                                    min_samples_leaf=d,
+                                    random_state=e,
+                                    bootstrap=f,
+                                    max_features=g
+                                )
+                                model.fit(Xin, yin)
+ 
+                                y_pred = model.predict(Xin)
+ 
+                                mse = sklearn.metrics.mean_squared_error(yin, y_pred)
+                                print(counter , " of ", total ,"MSE: ", mse)
+                                counter += 1
+                                if mse > bestmse:
+                                    bestmse = mse
+
+                                    besthyperF = {"n_estimators" : a,
+                                                  "max_depth" : b,  
+                                                  "min_samples_split" : c, 
+                                                  "min_samples_leaf" : d, 
+                                                  "random_state" : e, 
+                                                  "bootstrap" : f,
+                                                  "max_features" : g}
+
+
+
+
+    return besthyperF
+
+
+##################################################################################33
+
 def rfregressors_optimizer (Xin, yin, verbose=True):
 
     n_estimators = [100, 300, 500, 800, 1200]
-    max_depth = [5, 8, 15, 25, 30]
+    max_depth = [None, 5, 8, 15, 25, 30]
     min_samples_split = [2, 5, 10, 15, 100]
     min_samples_leaf = [1, 2, 5, 10] 
+    random_state = [1]
+    max_features = ['auto', 'sqrt']
+    bootstrap = [True, False]
 
-    hyperF = dict(n_estimators = n_estimators, max_depth = max_depth,  
-              min_samples_split = min_samples_split, 
-              min_samples_leaf = min_samples_leaf)
+    hyperF = {"n_estimators" : n_estimators, 
+            "max_depth" : max_depth,  
+            "min_samples_split" : min_samples_split, 
+            "min_samples_leaf" : min_samples_leaf, 
+            "random_state" : random_state, 
+            "bootstrap" : bootstrap,
+            "max_features" : max_features}
  
     model = RandomForestRegressor()
 
@@ -104,14 +188,14 @@ def rfregressors_optimizer (Xin, yin, verbose=True):
     bestF = gridF.fit(Xin, yin)
 
     if verbose:
-        print(bestF.best_params_)
+        pprint(bestF.best_params_)
 
     return bestF
 
 ##################################################################################33
 
 def rfregressors (Xin, yin, features, plotname="rf_model", N = 50, verbose=True,
-    pout=sys.stdout, showplot=False):
+    pout=sys.stdout, showplot=False, optimisedparams=None ):
 
     train_rmse = []
     test_rmse = []
@@ -119,7 +203,12 @@ def rfregressors (Xin, yin, features, plotname="rf_model", N = 50, verbose=True,
     for isplit in range(N):
         X_train, X_test, y_train, y_test = train_test_split(
             Xin, yin, test_size=0.35)
-        model = RandomForestRegressor()
+        model = None 
+
+        if optimisedparams is not None:
+            model = RandomForestRegressor(**optimisedparams)
+        else:
+            model = RandomForestRegressor(random_state = 1)
         model.fit(X_train, y_train)
         
         y_pred = model.predict(X_train)
@@ -141,7 +230,16 @@ def rfregressors (Xin, yin, features, plotname="rf_model", N = 50, verbose=True,
         print("    Test set average RMSE: %8.5f %8.5f "%(testavgrmse[0], testavgrmse[1]),
             file=pout)
       
-    model = RandomForestRegressor()
+    model = None
+
+    if optimisedparams is not None:
+        model = RandomForestRegressor(**optimisedparams)
+    else:
+        model = RandomForestRegressor(random_state = 1)
+
+    if verbose:
+        print("Parameters used: ")
+        pprint(model.get_params())
  
     # fit the model
     model.fit(Xin, yin)
