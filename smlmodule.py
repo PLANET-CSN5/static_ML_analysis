@@ -86,7 +86,7 @@ def extraxtnumber (indata, id, sdate, edate):
 
 ##################################################################################33
 
-def rfregressors_custom_optimizer (Xin, yin, verbose=True):
+def rfregressors_custom_optimizer (Xin, yin, verbose=True, inboot=[True, False]):
 
     n_estimators = [100, 300, 500, 800, 1200]
     max_depth = [None, 5, 8, 15, 25, 30]
@@ -94,7 +94,7 @@ def rfregressors_custom_optimizer (Xin, yin, verbose=True):
     min_samples_leaf = [1, 2, 5, 10] 
     random_state = [1]
     max_features = ['auto', 'sqrt']
-    bootstrap = [True, False]
+    bootstrap = inboot
 
     hyperF = {"n_estimators" : n_estimators, 
             "max_depth" : max_depth,  
