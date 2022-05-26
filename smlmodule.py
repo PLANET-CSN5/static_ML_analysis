@@ -118,7 +118,7 @@ def rfregressors_custom_optimizer (Xin, yin, verbose=True):
     for k in hyperF:
         total *= len(hyperF[k])
     counter = 1
-    bestmse = float("-inf")
+    bestmse = float("+inf")
     for a in hyperF["n_estimators"]:
         for b in  hyperF["max_depth"]:
             for c in  hyperF["min_samples_split"]:
@@ -142,7 +142,7 @@ def rfregressors_custom_optimizer (Xin, yin, verbose=True):
                                 mse = sklearn.metrics.mean_squared_error(yin, y_pred)
                                 print(counter , " of ", total ,"MSE: ", mse)
                                 counter += 1
-                                if mse > bestmse:
+                                if mse < bestmse:
                                     bestmse = mse
 
                                     besthyperF = {"n_estimators" : a,
@@ -156,7 +156,7 @@ def rfregressors_custom_optimizer (Xin, yin, verbose=True):
 
 
 
-    return besthyperF
+    return besthyperF, bestmse
 
 
 ##################################################################################33
