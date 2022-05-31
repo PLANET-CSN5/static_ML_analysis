@@ -263,6 +263,7 @@ def rfregressors (Xin, yin, features, plotname="rf_model", N = 50, verbose=True,
         if showplot:
             pyplot.figure(figsize=(10,10))
             pyplot.show()
+            pyplot.savefig(plotname+"_scatter.png")
         else:
             pyplot.savefig(plotname+"_scatter.png")
  
@@ -277,13 +278,15 @@ def rfregressors (Xin, yin, features, plotname="rf_model", N = 50, verbose=True,
  
         # plot feature importance
         pyplot.clf()
+        pyplot.figure(figsize=(10,10))
         pyplot.title("Features importance from model")
-        pyplot.bar(features, importance)
+        pyplot.barh(features, importance)
         pyplot.xticks(rotation=45, ha="right")
         pyplot.gcf().subplots_adjust(bottom=0.30)
         if showplot:
             pyplot.figure(figsize=(10,10))
             pyplot.show()
+            pyplot.savefig(plotname+"_feats_imp_frommodel.png")
         else:
             pyplot.savefig(plotname+"_feats_imp_frommodel.png")
  
@@ -328,13 +331,15 @@ def rfregressors (Xin, yin, features, plotname="rf_model", N = 50, verbose=True,
     if verbose:
         # plot feature importance
         pyplot.clf()
+        pyplot.figure(figsize=(10,10))
         pyplot.title("Features importance from Permutation")
-        pyplot.bar(features, importance)
+        pyplot.barh(features, importance)
         pyplot.xticks(rotation=45, ha="right")
         pyplot.gcf().subplots_adjust(bottom=0.30)
         if showplot:
             pyplot.figure(figsize=(10,10))
             pyplot.show()
+            pyplot.savefig(plotname+"_feats_imp_frompermutation.png")
         else:
             pyplot.savefig(plotname+"_feats_imp_frompermutation.png")
 
