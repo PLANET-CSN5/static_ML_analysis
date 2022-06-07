@@ -343,7 +343,7 @@ def rfregressors (Xin, yin, features, plotname="rf_model", N = 50, verbose=True,
         pyplot.clf()
         pyplot.figure(figsize=(10,10))
         pyplot.title("Features importance from Permutation [neg_mean_squared_error]")
-        pyplot.barh(features, importance, xerr=importanceerror, )
+        pyplot.barh(features, importance, xerr=importanceerror, capsize=10)
         pyplot.xticks(rotation=45, ha="right")
         pyplot.gcf().subplots_adjust(bottom=0.30)
         if showplot:
@@ -380,7 +380,7 @@ def rfregressors (Xin, yin, features, plotname="rf_model", N = 50, verbose=True,
         pyplot.clf()
         pyplot.figure(figsize=(10,10))
         pyplot.title("Features importance from Permutation [r2]")
-        pyplot.barh(features, importance, xerr=importanceerror, )
+        pyplot.barh(features, importance, xerr=importanceerror, capsize=10)
         pyplot.xticks(rotation=45, ha="right")
         pyplot.gcf().subplots_adjust(bottom=0.30)
         if showplot:
