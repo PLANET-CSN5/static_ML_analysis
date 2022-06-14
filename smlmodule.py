@@ -258,13 +258,15 @@ def rfregressors (Xin, yin, features, plotname="rf_model", N = 50, verbose=True,
     fullsetrmse = rmse
  
     if verbose:
+        pyplot.rcParams.update({'font.size': 22})
         pyplot.title("ScatterPlot predicted vs True")
         pyplot.scatter(yin, y_pred)
 
         if showplot:
+            fig1 = pyplot.gcf()
             pyplot.figure(figsize=(10,10))
             pyplot.show()
-            pyplot.savefig(plotname+"_scatter.png")
+            fig1.savefig(plotname+"_scatter.png", bbox_inches="tight")
         else:
             pyplot.savefig(plotname+"_scatter.png")
  
@@ -285,9 +287,10 @@ def rfregressors (Xin, yin, features, plotname="rf_model", N = 50, verbose=True,
         pyplot.xticks(rotation=45, ha="right")
         pyplot.gcf().subplots_adjust(bottom=0.30)
         if showplot:
+            fig1 = pyplot.gcf()
             pyplot.figure(figsize=(10,10))
             pyplot.show()
-            pyplot.savefig(plotname+"_feats_imp_frommodel.png")
+            fig1.savefig(plotname+"_feats_imp_frommodel.png", bbox_inches="tight")
         else:
             pyplot.savefig(plotname+"_feats_imp_frommodel.png")
  
@@ -347,9 +350,10 @@ def rfregressors (Xin, yin, features, plotname="rf_model", N = 50, verbose=True,
         pyplot.xticks(rotation=45, ha="right")
         pyplot.gcf().subplots_adjust(bottom=0.30)
         if showplot:
+            fig1 = pyplot.gcf()
             pyplot.figure(figsize=(10,10))
             pyplot.show()
-            pyplot.savefig(plotname+"_feats_imp_frompermutation_neg_mean_squared_error.png")
+            fig1.savefig(plotname+"_feats_imp_frompermutation_neg_mean_squared_error.png", bbox_inches="tight")
         else:
             pyplot.savefig(plotname+"_feats_imp_frompermutation_neg_mean_squared_error.png")
 
@@ -384,9 +388,10 @@ def rfregressors (Xin, yin, features, plotname="rf_model", N = 50, verbose=True,
         pyplot.xticks(rotation=45, ha="right")
         pyplot.gcf().subplots_adjust(bottom=0.30)
         if showplot:
+            fig1 = pyplot.gcf()
             pyplot.figure(figsize=(10,10))
             pyplot.show()
-            pyplot.savefig(plotname+"_feats_imp_frompermutation_r2.png")
+            fig1.savefig(plotname+"_feats_imp_frompermutation_r2.png", bbox_inches="tight")
         else:
             pyplot.savefig(plotname+"_feats_imp_frompermutation_r2.png")
 
