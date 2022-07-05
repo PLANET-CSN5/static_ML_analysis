@@ -195,6 +195,32 @@ def rfregressors_optimizer (Xin, yin, verbose=True):
 
 ##################################################################################33
 
+def dropcol_importances(rf, X_train, y_train):
+    from sklearn.base import clone
+
+    rf_ = clone(rf)
+    rf_.random_state = 999
+    rf_.fit(X_train, y_train)
+    baseline = rf_.oob_score_
+    imp = []
+    for col in X_train.columns:
+        X = X_train.drop(col, axis=1)
+        rf_ = clone(rf)
+        rf_.random_state = 999
+        rf_.fit(X, y_train)
+        o = rf_.oob_score_
+        imp.append(baseline - o)
+    imp = np.array(imp)
+    I = pd.DataFrame(
+            data={'Feature':X_train.columns,
+                  'Importance':imp})
+    I = I.set_index('Feature')
+    I = I.sort_values('Importance', ascending=True)
+    
+    return I
+
+##################################################################################33
+
 def rfregressors (Xin, yin, features, plotname="rf_model", N = 50, verbose=True,
     pout=sys.stdout, showplot=False, optimisedparams=None ):
 
