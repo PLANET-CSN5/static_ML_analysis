@@ -512,7 +512,91 @@ def rfregressors (Xin, yin, features, plotname="rf_model", N = 50, verbose=True,
         else:
             pyplot.savefig(plotname+"_feats_imp_frompermutation_r2.png")
 
-    return trainavgrmse, testavgrmse, fullsetrmse, featimport, featimport2
+    
+    #test in the validation set
+    X_train, X_test, y_train, y_test = train_test_split(Xin, yin, test_size = 0.2, random_state = 42)
+    model = RandomForestRegressor()
+ 
+    # fit the model
+    model.fit(X_train, y_train)
+
+    results= permutation_importance(model, X_test, y_test, n_repeats=50, random_state=0, \
+        scoring="neg_mean_squared_error")
+
+    importance = results.importances_mean
+    importanceerror = results.importances_std
+    # summarize feature importance
+
+    if verbose:
+        print("",file=pout)
+        print("Features importance from Permutation TetSet Score neg_mean_squared_error : ",file=pout)
+
+    totfi = 0.0
+    featimport3 = {}
+    for i,v in enumerate(importance):
+        featimport3[features[i]] = v
+        if verbose:
+            print('Feature: %30s, Score: %.5f +/- %.5f' % (features[i],v,importanceerror[i]),file=pout)
+        totfi += v
+
+    for i,v in enumerate(importance):
+        featimport3[features[i]] /= totfi
+
+    if verbose:
+        # plot feature importance
+        pyplot.clf()
+        pyplot.figure(figsize=(10,10))
+        pyplot.title("Features importance from Permutation TestSet [neg_mean_squared_error]")
+        pyplot.barh(features, importance, xerr=importanceerror, capsize=10)
+        pyplot.xticks(rotation=45, ha="right")
+        pyplot.gcf().subplots_adjust(bottom=0.30)
+        if showplot:
+            fig1 = pyplot.gcf()
+            pyplot.figure(figsize=(10,10))
+            pyplot.show()
+            fig1.savefig(plotname+"_feats_imp_frompermutation_testset_neg_mean_squared_error.png", bbox_inches="tight")
+        else:
+            pyplot.savefig(plotname+"_feats_imp_frompermutation_testset_neg_mean_squared_error.png")
+
+    results= permutation_importance(model, X_test, y_test, n_repeats=50, random_state=0, \
+        scoring="r2")
+
+    importance = results.importances_mean
+    importanceerror = results.importances_std
+    # summarize feature importance
+
+    if verbose:
+        print("",file=pout)
+        print("Features importance from Permutation TestSet Score r2: ",file=pout)
+
+    totfi = 0.0
+    featimport4 = {}
+    for i,v in enumerate(importance):
+        featimport4[features[i]] = v
+        if verbose:
+            print('Feature: %30s, Score: %.5f +/- %.5f' % (features[i],v,importanceerror[i]),file=pout)
+        totfi += v
+
+    for i,v in enumerate(importance):
+        featimport4[features[i]] /= totfi
+
+    if verbose:
+        # plot feature importance
+        pyplot.clf()
+        pyplot.figure(figsize=(10,10))
+        pyplot.title("Features importance from Permutation TestSet [r2]")
+        pyplot.barh(features, importance, xerr=importanceerror, capsize=10)
+        pyplot.xticks(rotation=45, ha="right")
+        pyplot.gcf().subplots_adjust(bottom=0.30)
+        if showplot:
+            fig1 = pyplot.gcf()
+            pyplot.figure(figsize=(10,10))
+            pyplot.show()
+            fig1.savefig(plotname+"_feats_imp_frompermutation_testset_r2.png", bbox_inches="tight")
+        else:
+            pyplot.savefig(plotname+"_feats_imp_frompermutation_testset_r2.png")
+
+    return trainavgrmse, testavgrmse, fullsetrmse, featimport, featimport2,  featimport3, featimport4
 
 ##################################################################################33
 
