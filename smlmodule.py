@@ -229,10 +229,12 @@ def rfregressors_custom_optimizer_nooverfit (Xin, yin, verbose=True, inboot=[Tru
  
                                 diffrmse = math.fabs(test_rmse -train_rmse)
 
+                                percdiff = diffrmse/((test_rmse + train_rmse)/2.0)
+
                                 print(counter , " of ", total ,"Train RMSE: ", train_rmse)
                                 print(counter , " of ", total ," Test RMSE: ", test_rmse)
                                 counter += 1
-                                if train_rmse < best_train_rmse and test_rmse < best_test_rmse and \
+                                if percdiff <= 0.3 and train_rmse < best_train_rmse and test_rmse < best_test_rmse and \
                                     diffrmse < best_diff:
                                     best_test_rmse = test_rmse
                                     best_train_rmse = train_rmse
