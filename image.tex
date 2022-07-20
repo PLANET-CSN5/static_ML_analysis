@@ -1,0 +1,21 @@
+\documentclass[varwidth, border=10pt]{standalone}
+
+\usepackage{subcaption}
+\usepackage[labelformat=parens,labelsep=quad,skip=3pt]{caption}
+\usepackage{graphicx}
+
+
+\begin{document}
+
+\begin{figure*}
+   \centering
+\begin{tabular}{cc}
+\includegraphics[width=0.5\textwidth]{rf_model_nolat_nocommut_opt_feats_imp_frompermutation_neg_mean_squared_error.png}&
+\includegraphics[width=0.5\textwidth]{rf_model_nolat_nocommut_opt_feats_imp_frompermutation_r2.png}\\
+\includegraphics[width=0.5\textwidth]{rf_model_nolat_nocommut_opt_feats_imp_frompermutation_testset_neg_mean_squared_error.png}&
+\includegraphics[width=0.5\textwidth]{rf_model_nolat_nocommut_opt_feats_imp_frompermutation_testset_r2.png}\\
+\end{tabular}
+  \caption*{Without Latitude and Commuters Density}
+\end{figure*}
+
+\end{document}
