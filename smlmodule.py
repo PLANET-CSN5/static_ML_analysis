@@ -212,7 +212,7 @@ def rfregressors_custom_optimizer_nooverfit (Xin, yin, verbose=True, inboot=[Tru
                                     random_state=e,
                                     bootstrap=f,
                                     max_features=g
-                                ]
+                                )
 
                                 model.fit(X_train, y_train)
 
@@ -300,7 +300,7 @@ def rfregressors_custom_optimizer_testset (Xin, yin, verbose=True, inboot=[True,
                                     random_state=e,
                                     bootstrap=f,
                                     max_features=g
-                                ]
+                                )
 
                                 model.fit(X_train, y_train)
 
