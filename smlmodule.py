@@ -139,11 +139,13 @@ def rfregressors_custom_optimizer (Xin, yin, verbose=True, inboot=[True, False])
                                 model.fit(Xin, yin)
  
                                 y_pred = model.predict(Xin)
+
+                                diffstdperc = 100*(math.fabs(np.std(y_pred) - np.std(yin))/np.std(yin))
  
                                 mse = sklearn.metrics.mean_squared_error(yin, y_pred)
                                 #print(counter , " of ", total ,"MSE: ", mse)
                                 counter += 1
-                                if mse < bestmse:
+                                if diffstdperc < 80.0 and mse < bestmse:
                                     bestmse = mse
 
                                     besthyperF = {"n_estimators" : a,
@@ -230,9 +232,28 @@ def rfregressors_custom_optimizer_nooverfit (Xin, yin, verbose=True, inboot=[Tru
 
                                 #print(counter , " of ", total ,"Train RMSE: ", train_rmse)
                                 #print(counter , " of ", total ," Test RMSE: ", test_rmse)
+
+                                model1 = RandomForestRegressor(
+                                    n_estimators=a,
+                                    max_depth=b,
+                                    min_samples_split=c,
+                                    min_samples_leaf=d,
+                                    random_state=e,
+                                    bootstrap=f,
+                                    max_features=g
+                                )
+
+                                model1.fit(Xin, yin)
+                                
+                                y_pred = model1.predict(Xin)
+                                
+                                diffstdperc = 100*(math.fabs(np.std(y_pred) - np.std(yin))/np.std(yin))
+
                                 counter += 1
-                                if percdiff <= 0.3 and train_rmse < best_train_rmse and test_rmse < best_test_rmse and \
+                                if diffstdperc < 80.0 and percdiff <= 0.3 and train_rmse < best_train_rmse \
+                                    and test_rmse < best_test_rmse and \
                                     diffrmse < best_diff:
+
                                     best_test_rmse = test_rmse
                                     best_train_rmse = train_rmse
                                     best_diff = diffrmse
@@ -314,12 +335,27 @@ def rfregressors_custom_optimizer_testset (Xin, yin, verbose=True, inboot=[True,
  
                                 diffrmse = math.fabs(test_rmse -train_rmse)
 
-                                percdiff = diffrmse/((test_rmse + train_rmse)/2.0)
+                                model1 = RandomForestRegressor(
+                                    n_estimators=a,
+                                    max_depth=b,
+                                    min_samples_split=c,
+                                    min_samples_leaf=d,
+                                    random_state=e,
+                                    bootstrap=f,
+                                    max_features=g
+                                )
+
+                                model1.fit(Xin, yin)
+                                
+                                y_pred = model1.predict(Xin)
+                                
+                                diffstdperc = 100*(math.fabs(np.std(y_pred) - np.std(yin))/np.std(yin))
 
                                 #print(counter , " of ", total ,"Train RMSE: ", train_rmse)
                                 #print(counter , " of ", total ," Test RMSE: ", test_rmse)
                                 counter += 1
-                                if test_rmse < best_test_rmse:
+                                if diffstdperc < 80.0 and \
+                                    test_rmse < best_test_rmse:
                                     best_test_rmse = test_rmse
                                     best_train_rmse = train_rmse
                                     best_diff = diffrmse
@@ -447,7 +483,16 @@ def rfregressors (Xin, yin, features, plotname="rf_model", N = 50, verbose=True,
     model.fit(Xin, yin)
  
     y_pred = model.predict(Xin)
- 
+
+    print("")
+
+    diffstdperc = 100*(math.fabs(np.std(y_pred) - np.std(yin))/np.std(yin))
+    print("Prediction STD : ", np.std(y_pred))
+    print("True value STD:  ", np.std(yin))
+    print("Difference in percentage: ", diffstdperc)
+
+    print("")
+
     mse = sklearn.metrics.mean_squared_error(yin, y_pred)
     r2s = sklearn.metrics.r2_score(yin, y_pred)
 
@@ -521,7 +566,7 @@ def rfregressors (Xin, yin, features, plotname="rf_model", N = 50, verbose=True,
     #    results[s] = permutation_importance(model, Xin, yin, n_repeats=50, random_state=0, \
     #        scoring=s)
     # get importance
-    results= permutation_importance(model, Xin, yin, n_repeats=50, random_state=0, \
+    results = permutation_importance(model, Xin, yin, n_repeats=50, random_state=0, \
         scoring="neg_mean_squared_error")
 
     importance = results.importances_mean
@@ -682,7 +727,7 @@ def rfregressors (Xin, yin, features, plotname="rf_model", N = 50, verbose=True,
             pyplot.savefig(plotname+"_testset_feats_imp_frompermutation_testset_r2.png")
 
 
-    results= permutation_importance(model, X_train, y_train, n_repeats=50, random_state=0, \
+    results = permutation_importance(model, X_train, y_train, n_repeats=50, random_state=0, \
         scoring="neg_mean_squared_error")
 
     importance = results.importances_mean
