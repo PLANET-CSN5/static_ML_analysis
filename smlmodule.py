@@ -113,8 +113,6 @@ def rfregressors_custom_optimizer (Xin, yin, verbose=True, inboot=[True, False])
             "bootstrap" : bootstrap,
             "max_features" : max_features}
 
-
-
     total = 1
     for k in hyperF:
         total *= len(hyperF[k])
@@ -171,6 +169,14 @@ def rfregressors_custom_optimizer_nooverfit (Xin, yin, verbose=True, inboot=[Tru
     min_samples_leaf = [1, 2, 5, 10] 
     random_state = [1]
     max_features = ['auto', 'sqrt']
+    bootstrap = inboot
+
+    n_estimators = [100]
+    max_depth = [None, 5]
+    min_samples_split = [2, 5]
+    min_samples_leaf = [1] 
+    random_state = [1]
+    max_features = ['auto']
     bootstrap = inboot
 
     hyperF = {"n_estimators" : n_estimators, 
@@ -249,10 +255,17 @@ def rfregressors_custom_optimizer_nooverfit (Xin, yin, verbose=True, inboot=[Tru
                                 
                                 diffstdperc = 100*(math.fabs(np.std(y_pred) - np.std(yin))/np.std(yin))
 
+                                #print(diffstdperc, percdiff, diffrmse, train_rmse, test_rmse)
+                                #print(best_train_rmse, best_test_rmse, best_diff)
+                                #print(diffstdperc < 80.0)
+                                #print(percdiff <= 0.9)
+                                #print(train_rmse < best_train_rmse)
+                                #print(test_rmse < best_test_rmse)
+                                #print( diffrmse < best_diff)
+
                                 counter += 1
-                                if diffstdperc < 80.0 and percdiff <= 0.3 and train_rmse < best_train_rmse \
-                                    and test_rmse < best_test_rmse and \
-                                    diffrmse < best_diff:
+                                if diffstdperc < 80.0 and percdiff <= 1.0 and train_rmse < best_train_rmse \
+                                    and test_rmse < best_test_rmse and diffrmse < best_diff:
 
                                     best_test_rmse = test_rmse
                                     best_train_rmse = train_rmse
