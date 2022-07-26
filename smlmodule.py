@@ -377,6 +377,109 @@ def rfregressors_custom_optimizer_testset (Xin, yin, verbose=True, inboot=[True,
 
 ##################################################################################33
 
+def rfregressors_custom_optimizer_trainset (Xin, yin, verbose=True, inboot=[True, False]):
+
+    n_estimators = [100, 300, 500, 800, 1200]
+    max_depth = [None, 5, 8, 15, 25, 30]
+    min_samples_split = [2, 5, 10, 15, 100]
+    min_samples_leaf = [1, 2, 5, 10] 
+    random_state = [1]
+    max_features = ['auto', 'sqrt']
+    bootstrap = inboot
+
+    hyperF = {"n_estimators" : n_estimators, 
+            "max_depth" : max_depth,  
+            "min_samples_split" : min_samples_split, 
+            "min_samples_leaf" : min_samples_leaf, 
+            "random_state" : random_state, 
+            "bootstrap" : bootstrap,
+            "max_features" : max_features}
+
+    besthyperF = {"n_estimators" : n_estimators, 
+            "max_depth" : max_depth,  
+            "min_samples_split" : min_samples_split, 
+            "min_samples_leaf" : min_samples_leaf, 
+            "random_state" : random_state, 
+            "bootstrap" : bootstrap,
+            "max_features" : max_features}
+    
+    X_train, X_test, y_train, y_test = train_test_split(
+            Xin, yin, test_size=0.35)
+
+    total = 1
+    for k in hyperF:
+        total *= len(hyperF[k])
+    counter = 1
+    best_train_rmse = float("+inf")
+    best_test_rmse = float("+inf")
+    best_diff = float("+inf")
+    for a in hyperF["n_estimators"]:
+        for b in  hyperF["max_depth"]:
+            for c in  hyperF["min_samples_split"]:
+                for d in  hyperF["min_samples_leaf"]:
+                    for e in  hyperF["random_state"]:
+                        for f in  hyperF["bootstrap"]:
+                            for g in  hyperF["max_features"]:
+                                model = RandomForestRegressor(
+                                    n_estimators=a,
+                                    max_depth=b,
+                                    min_samples_split=c,
+                                    min_samples_leaf=d,
+                                    random_state=e,
+                                    bootstrap=f,
+                                    max_features=g
+                                )
+
+                                model.fit(X_train, y_train)
+
+                                y_pred = model.predict(X_train)
+                                mse = sklearn.metrics.mean_squared_error(y_train, y_pred)
+                                train_rmse = math.sqrt(mse)
+                                
+                                y_pred = model.predict(X_test)
+                                mse = sklearn.metrics.mean_squared_error(y_test, y_pred)
+                                test_rmse = math.sqrt(mse)
+ 
+                                diffrmse = math.fabs(test_rmse -train_rmse)
+
+                                model1 = RandomForestRegressor(
+                                    n_estimators=a,
+                                    max_depth=b,
+                                    min_samples_split=c,
+                                    min_samples_leaf=d,
+                                    random_state=e,
+                                    bootstrap=f,
+                                    max_features=g
+                                )
+
+                                model1.fit(Xin, yin)
+                                
+                                y_pred = model1.predict(Xin)
+                                
+                                diffstdperc = 100*(math.fabs(np.std(y_pred) - np.std(yin))/np.std(yin))
+
+                                #print(counter , " of ", total ,"Train RMSE: ", train_rmse)
+                                #print(counter , " of ", total ," Test RMSE: ", test_rmse)
+                                counter += 1
+                                if diffstdperc < 80.0 and \
+                                    train_rmse < best_train_rmse:
+
+                                    best_test_rmse = test_rmse
+                                    best_train_rmse = train_rmse
+                                    best_diff = diffrmse
+
+                                    besthyperF = {"n_estimators" : a,
+                                                  "max_depth" : b,  
+                                                  "min_samples_split" : c, 
+                                                  "min_samples_leaf" : d, 
+                                                  "random_state" : e, 
+                                                  "bootstrap" : f,
+                                                  "max_features" : g}
+
+    return besthyperF, best_diff, best_test_rmse, best_train_rmse
+
+##################################################################################33
+
 def rfregressors_optimizer (Xin, yin, verbose=True):
 
     n_estimators = [100, 300, 500, 800, 1200]
