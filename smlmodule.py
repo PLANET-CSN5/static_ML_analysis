@@ -171,14 +171,6 @@ def rfregressors_custom_optimizer_nooverfit (Xin, yin, verbose=True, inboot=[Tru
     max_features = ['auto', 'sqrt']
     bootstrap = inboot
 
-    n_estimators = [100]
-    max_depth = [None, 5]
-    min_samples_split = [2, 5]
-    min_samples_leaf = [1] 
-    random_state = [1]
-    max_features = ['auto']
-    bootstrap = inboot
-
     hyperF = {"n_estimators" : n_estimators, 
             "max_depth" : max_depth,  
             "min_samples_split" : min_samples_split, 
