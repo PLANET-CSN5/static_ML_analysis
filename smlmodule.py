@@ -285,6 +285,15 @@ def rfregressors_custom_optimizer_testset (Xin, yin, verbose=True, inboot=[True,
     max_features = ['auto', 'sqrt']
     bootstrap = inboot
 
+    # quick check for testing purpose
+    #n_estimators = [100, 300]
+    #max_depth = [None, 5]
+    #min_samples_split = [2, 5]
+    #min_samples_leaf = [1, 2] 
+    #random_state = [1]
+    #max_features = ['auto']
+    #bootstrap = inboot
+
     hyperF = {"n_estimators" : n_estimators, 
             "max_depth" : max_depth,  
             "min_samples_split" : min_samples_split, 
@@ -361,6 +370,7 @@ def rfregressors_custom_optimizer_testset (Xin, yin, verbose=True, inboot=[True,
                                 counter += 1
                                 if diffstdperc < 80.0 and \
                                     test_rmse < best_test_rmse:
+
                                     best_test_rmse = test_rmse
                                     best_train_rmse = train_rmse
                                     best_diff = diffrmse
@@ -540,7 +550,8 @@ def dropcol_importances(rf, X_train, y_train):
 ##################################################################################33
 
 def rfregressors (Xin, yin, features, plotname="rf_model", N = 50, verbose=True,
-    pout=sys.stdout, showplot=False, optimisedparams=None , alsofrommodel=False):
+    pout=sys.stdout, showplot=False, optimisedparams=None , alsofrommodel=False,
+    visualmap=None):
 
     train_rmse = []
     test_rmse = []
@@ -613,16 +624,18 @@ def rfregressors (Xin, yin, features, plotname="rf_model", N = 50, verbose=True,
  
     if verbose:
         pyplot.rcParams.update({'font.size': 15})
-        pyplot.title("ScatterPlot predicted vs True")
+        pyplot.title("Scatterplot for Full Set")
+        pyplot.xlabel("log(Cases/Population)")
+        pyplot.ylabel("Predicted log(Cases/Population)")
         pyplot.scatter(yin, y_pred)
 
         if showplot:
             fig1 = pyplot.gcf()
             pyplot.figure(figsize=(10,10))
             pyplot.show()
-            fig1.savefig(plotname+"_scatter.png", bbox_inches="tight")
+            fig1.savefig(plotname+"_fullset_scatter.png", bbox_inches="tight")
         else:
-            pyplot.savefig(plotname+"_scatter.png")
+            pyplot.savefig(plotname+"_fullset_scatter.png")
  
     # get importance
     if alsofrommodel:
@@ -696,12 +709,21 @@ def rfregressors (Xin, yin, features, plotname="rf_model", N = 50, verbose=True,
     for i,v in enumerate(importance):
         featimport[features[i]] /= totfi
 
+    featuresforplot = []
+
+    if visualmap == None:
+        featuresforplot = features
+    else:
+        for f in features:
+          vname = visualmap[f]
+          featuresforplot.append(vname)
+
     if verbose:
         # plot feature importance
         pyplot.clf()
         pyplot.figure(figsize=(10,10))
-        pyplot.title("Features importance from Permutation FullSet [neg_mean_squared_error]")
-        pyplot.barh(features, importance, xerr=importanceerror, capsize=10)
+        pyplot.title("Features importance for the Full Set [Neg. MSE]")
+        pyplot.barh(featuresforplot, importance, xerr=importanceerror, capsize=10)
         pyplot.xticks(rotation=45, ha="right")
         pyplot.gcf().subplots_adjust(bottom=0.30)
         if showplot:
@@ -721,7 +743,7 @@ def rfregressors (Xin, yin, features, plotname="rf_model", N = 50, verbose=True,
 
     if verbose:
         print("",file=pout)
-        print("Features importance from Permutation FullSet Score r2: ",file=pout)
+        print("Features importance from Permutation Full Set Score r2: ",file=pout)
 
     totfi = 0.0
     featimport2 = {}
@@ -738,8 +760,8 @@ def rfregressors (Xin, yin, features, plotname="rf_model", N = 50, verbose=True,
         # plot feature importance
         pyplot.clf()
         pyplot.figure(figsize=(10,10))
-        pyplot.title("Features importance from Permutation Fullset [r2]")
-        pyplot.barh(features, importance, xerr=importanceerror, capsize=10)
+        pyplot.title("Features importance for the Full Set [R2]")
+        pyplot.barh(featuresforplot, importance, xerr=importanceerror, capsize=10)
         pyplot.xticks(rotation=45, ha="right")
         pyplot.gcf().subplots_adjust(bottom=0.30)
         if showplot:
@@ -757,6 +779,44 @@ def rfregressors (Xin, yin, features, plotname="rf_model", N = 50, verbose=True,
  
     # fit the model
     model.fit(X_train, y_train)
+
+    y_pred = model.predict(X_train)
+
+    if verbose:
+        pyplot.clf()
+        pyplot.figure(figsize=(10,10))
+        pyplot.rcParams.update({'font.size': 15})
+        pyplot.title("Scatterplot for Training Set")
+        pyplot.xlabel("log(Cases/Population)")
+        pyplot.ylabel("Predicted log(Cases/Population)")
+        pyplot.scatter(y_train, y_pred)
+
+        if showplot:
+            fig1 = pyplot.gcf()
+            pyplot.figure(figsize=(10,10))
+            pyplot.show()
+            fig1.savefig(plotname+"_trainset_scatter.png", bbox_inches="tight")
+        else:
+            pyplot.savefig(plotname+"_trainset_scatter.png")
+
+    y_pred = model.predict(X_test)
+
+    if verbose:
+        pyplot.clf()
+        pyplot.rcParams.update({'font.size': 15})
+        pyplot.figure(figsize=(10,10))
+        pyplot.title("Scatterplot for Test Set")
+        pyplot.xlabel("log(Cases/Population)")
+        pyplot.ylabel("Predicted log(Cases/Population)")
+        pyplot.scatter(y_test, y_pred)
+
+        if showplot:
+            fig1 = pyplot.gcf()
+            pyplot.figure(figsize=(10,10))
+            pyplot.show()
+            fig1.savefig(plotname+"_testset_scatter.png", bbox_inches="tight")
+        else:
+            pyplot.savefig(plotname+"_testset_scatter.png")
 
     results= permutation_importance(model, X_test, y_test, n_repeats=50, random_state=0, \
         scoring="neg_mean_squared_error")
@@ -784,8 +844,8 @@ def rfregressors (Xin, yin, features, plotname="rf_model", N = 50, verbose=True,
         # plot feature importance
         pyplot.clf()
         pyplot.figure(figsize=(10,10))
-        pyplot.title("Features importance from Permutation TestSet [neg_mean_squared_error]")
-        pyplot.barh(features, importance, xerr=importanceerror, capsize=10)
+        pyplot.title("Features importance from Permutation Test Set [Neg. MSE]")
+        pyplot.barh(featuresforplot, importance, xerr=importanceerror, capsize=10)
         pyplot.xticks(rotation=45, ha="right")
         pyplot.gcf().subplots_adjust(bottom=0.30)
         if showplot:
@@ -822,8 +882,8 @@ def rfregressors (Xin, yin, features, plotname="rf_model", N = 50, verbose=True,
         # plot feature importance
         pyplot.clf()
         pyplot.figure(figsize=(10,10))
-        pyplot.title("Features importance from Permutation TestSet [r2]")
-        pyplot.barh(features, importance, xerr=importanceerror, capsize=10)
+        pyplot.title("Features importance from Permutation Test Set [R2]")
+        pyplot.barh(featuresforplot, importance, xerr=importanceerror, capsize=10)
         pyplot.xticks(rotation=45, ha="right")
         pyplot.gcf().subplots_adjust(bottom=0.30)
         if showplot:
@@ -861,8 +921,8 @@ def rfregressors (Xin, yin, features, plotname="rf_model", N = 50, verbose=True,
         # plot feature importance
         pyplot.clf()
         pyplot.figure(figsize=(10,10))
-        pyplot.title("Features importance from Permutation TrainingSet [neg_mean_squared_error]")
-        pyplot.barh(features, importance, xerr=importanceerror, capsize=10)
+        pyplot.title("Features importance from Permutation Training Set [Neg. MSE]")
+        pyplot.barh(featuresforplot, importance, xerr=importanceerror, capsize=10)
         pyplot.xticks(rotation=45, ha="right")
         pyplot.gcf().subplots_adjust(bottom=0.30)
         if showplot:
@@ -899,8 +959,8 @@ def rfregressors (Xin, yin, features, plotname="rf_model", N = 50, verbose=True,
         # plot feature importance
         pyplot.clf()
         pyplot.figure(figsize=(10,10))
-        pyplot.title("Features importance from Permutation TrainingSet [r2]")
-        pyplot.barh(features, importance, xerr=importanceerror, capsize=10)
+        pyplot.title("Features importance from Permutation Training Set [R2]")
+        pyplot.barh(featuresforplot, importance, xerr=importanceerror, capsize=10)
         pyplot.xticks(rotation=45, ha="right")
         pyplot.gcf().subplots_adjust(bottom=0.30)
         if showplot:
