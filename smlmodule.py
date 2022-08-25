@@ -97,6 +97,15 @@ def rfregressors_custom_optimizer (Xin, yin, verbose=True, inboot=[True, False])
     max_features = ['auto', 'sqrt']
     bootstrap = inboot
 
+    # quick check for testing purpose
+    #n_estimators = [100, 300]
+    #max_depth = [None, 5]
+    #min_samples_split = [2, 5]
+    #min_samples_leaf = [1, 2] 
+    #random_state = [1]
+    #max_features = ['auto']
+    #bootstrap = inboot
+
     hyperF = {"n_estimators" : n_estimators, 
             "max_depth" : max_depth,  
             "min_samples_split" : min_samples_split, 
@@ -697,21 +706,6 @@ def rfregressors (Xin, yin, features, plotname="rf_model", N = 50, verbose=True,
     importanceerror = results.importances_std
     # summarize feature importance
 
-    if verbose:
-        print("",file=pout)
-        print("Features importance from Permutation Fullset Score neg_mean_squared_error : ",file=pout)
-
-    totfi = 0.0
-    featimport = {}
-    for i,v in enumerate(importance):
-        featimport[features[i]] = v
-        if verbose:
-            print('Feature: %30s, Score: %.5f +/- %.5f' % (features[i],v,importanceerror[i]),file=pout)
-        totfi += v
-
-    for i,v in enumerate(importance):
-        featimport[features[i]] /= totfi
-
     featuresforplot = []
 
     if visualmap == None:
@@ -720,6 +714,30 @@ def rfregressors (Xin, yin, features, plotname="rf_model", N = 50, verbose=True,
         for f in features:
           vname = visualmap[f]
           featuresforplot.append(vname)
+
+
+    if verbose:
+        print("",file=pout)
+        print("Features importance from Permutation Fullset Score neg_mean_squared_error : ",file=pout)
+
+    refvalue = 0.0
+    for i,v in enumerate(importance):
+        if features[i] == "randomfeature":
+            refvalue = v
+
+    totfi = 0.0
+    featimport = {}
+    for i,v in enumerate(importance):
+        featimport[features[i]] = v
+        if verbose:
+            if (v > 0.0 and v > refvalue):
+                print('Feature: %30s, Score: %.5f +/- %.5f' % \
+                    (featuresforplot[i],v,importanceerror[i]),file=pout)
+        totfi += v
+
+    for i,v in enumerate(importance):
+        featimport[features[i]] /= totfi
+
 
     if verbose:
         # plot feature importance
@@ -748,12 +766,19 @@ def rfregressors (Xin, yin, features, plotname="rf_model", N = 50, verbose=True,
         print("",file=pout)
         print("Features importance from Permutation Full Set Score r2: ",file=pout)
 
+    refvalue = 0.0
+    for i,v in enumerate(importance):
+        if features[i] == "randomfeature":
+            refvalue = v
+
     totfi = 0.0
     featimport2 = {}
     for i,v in enumerate(importance):
         featimport2[features[i]] = v
         if verbose:
-            print('Feature: %30s, Score: %.5f +/- %.5f' % (features[i],v,importanceerror[i]),file=pout)
+            if (v > 0.0 and v > refvalue):
+                print('Feature: %30s, Score: %.5f +/- %.5f' % (\
+                    featuresforplot[i],v,importanceerror[i]),file=pout)
         totfi += v
 
     for i,v in enumerate(importance):
@@ -851,12 +876,19 @@ def rfregressors (Xin, yin, features, plotname="rf_model", N = 50, verbose=True,
         print("",file=pout)
         print("Features importance from Permutation TetSet Score neg_mean_squared_error : ",file=pout)
 
+    refvalue = 0.0
+    for i,v in enumerate(importance):
+        if features[i] == "randomfeature":
+            refvalue = v
+
     totfi = 0.0
     featimport3 = {}
     for i,v in enumerate(importance):
         featimport3[features[i]] = v
         if verbose:
-            print('Feature: %30s, Score: %.5f +/- %.5f' % (features[i],v,importanceerror[i]),file=pout)
+            if (v > 0.0 and v > refvalue):
+                print('Feature: %30s, Score: %.5f +/- %.5f' % \
+                    (featuresforplot[i],v,importanceerror[i]),file=pout)
         totfi += v
 
     for i,v in enumerate(importance):
@@ -889,12 +921,19 @@ def rfregressors (Xin, yin, features, plotname="rf_model", N = 50, verbose=True,
         print("",file=pout)
         print("Features importance from Permutation TestSet Score r2: ",file=pout)
 
+    refvalue = 0.0
+    for i,v in enumerate(importance):
+        if features[i] == "randomfeature":
+            refvalue = v
+
     totfi = 0.0
     featimport4 = {}
     for i,v in enumerate(importance):
         featimport4[features[i]] = v
         if verbose:
-            print('Feature: %30s, Score: %.5f +/- %.5f' % (features[i],v,importanceerror[i]),file=pout)
+            if (v > 0.0 and v > refvalue):
+                print('Feature: %30s, Score: %.5f +/- %.5f' % \
+                    (featuresforplot[i],v,importanceerror[i]),file=pout)
         totfi += v
 
     for i,v in enumerate(importance):
@@ -928,12 +967,19 @@ def rfregressors (Xin, yin, features, plotname="rf_model", N = 50, verbose=True,
         print("",file=pout)
         print("Features importance from Permutation TrainingSet Score neg_mean_squared_error : ",file=pout)
 
+    refvalue = 0.0
+    for i,v in enumerate(importance):
+        if features[i] == "randomfeature":
+            refvalue = v
+
     totfi = 0.0
     featimport5 = {}
     for i,v in enumerate(importance):
         featimport5[features[i]] = v
         if verbose:
-            print('Feature: %30s, Score: %.5f +/- %.5f' % (features[i],v,importanceerror[i]),file=pout)
+            if (v >0.0 and v > refvalue):
+                print('Feature: %30s, Score: %.5f +/- %.5f' % \
+                    (featuresforplot[i],v,importanceerror[i]),file=pout)
         totfi += v
 
     for i,v in enumerate(importance):
@@ -966,12 +1012,19 @@ def rfregressors (Xin, yin, features, plotname="rf_model", N = 50, verbose=True,
         print("",file=pout)
         print("Features importance from Permutation TrainingSet Score r2: ",file=pout)
 
+    refvalue = 0.0
+    for i,v in enumerate(importance):
+        if features[i] == "randomfeature":
+            refvalue = v
+
     totfi = 0.0
     featimport6 = {}
     for i,v in enumerate(importance):
         featimport6[features[i]] = v
         if verbose:
-            print('Feature: %30s, Score: %.5f +/- %.5f' % (features[i],v,importanceerror[i]),file=pout)
+            if (v > 0.0 and v > refvalue):
+                print('Feature: %30s, Score: %.5f +/- %.5f' % \
+                    (featuresforplot[i],v,importanceerror[i]),file=pout)
         totfi += v
 
     for i,v in enumerate(importance):
