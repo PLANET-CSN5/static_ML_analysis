@@ -565,6 +565,7 @@ def rfregressors (Xin, yin, features, plotname="rf_model", N = 50, verbose=True,
             model = RandomForestRegressor(**optimisedparams)
         else:
             model = RandomForestRegressor(random_state = 1)
+
         model.fit(X_train, y_train)
         
         y_pred = model.predict(X_train)
@@ -586,6 +587,8 @@ def rfregressors (Xin, yin, features, plotname="rf_model", N = 50, verbose=True,
         model = RandomForestRegressor(**optimisedparams)
     else:
         model = RandomForestRegressor(random_state = 1)
+    
+    model.fit(Xin, yin)
 
     if verbose:
         print("Parameters used: ")
@@ -598,17 +601,14 @@ def rfregressors (Xin, yin, features, plotname="rf_model", N = 50, verbose=True,
         print("    Test set average RMSE: %8.5f %8.5f "%(testavgrmse[0], testavgrmse[1]),
             file=pout)
 
-    # fit the model
-    model.fit(Xin, yin)
- 
     y_pred = model.predict(Xin)
 
     print("")
 
     diffstdperc = 100*(math.fabs(np.std(y_pred) - np.std(yin))/np.std(yin))
-    print("Prediction STD : ", np.std(y_pred))
-    print("True value STD:  ", np.std(yin))
-    print("Difference in percentage: ", diffstdperc)
+    print("Prediction STD : %10.5f"%(np.std(y_pred)))
+    print("True value STD : %10.5f"%(np.std(yin)))
+    print("Difference in percentage: %10.5f"%(diffstdperc))
 
     print("")
 
@@ -617,8 +617,8 @@ def rfregressors (Xin, yin, features, plotname="rf_model", N = 50, verbose=True,
 
     rmse = math.sqrt(mse)
     if verbose:
-        print("             Fullset RMSE: %8.5f"%rmse, file=pout)
-        print("                       R2: %8.5f"%r2s, file=pout)
+        print("             Fullset RMSE: %10.5f"%rmse, file=pout)
+        print("                       R2: %10.5f"%r2s, file=pout)
     
     fullsetrmse = rmse
  
@@ -674,7 +674,10 @@ def rfregressors (Xin, yin, features, plotname="rf_model", N = 50, verbose=True,
     # When two features are correlated and one of the features is permuted, the model 
     # will still have access to the feature through its correlated feature.
  
-    model = RandomForestRegressor()
+    if optimisedparams is not None:
+        model = RandomForestRegressor(**optimisedparams)
+    else:
+        model = RandomForestRegressor(random_state = 1)
  
     # fit the model
     model.fit(Xin, yin)
@@ -771,16 +774,27 @@ def rfregressors (Xin, yin, features, plotname="rf_model", N = 50, verbose=True,
             fig1.savefig(plotname+"_fullset_feats_imp_frompermutation_r2.png", bbox_inches="tight")
         else:
             pyplot.savefig(plotname+"_fullset_feats_imp_frompermutation_r2.png")
-
     
     #test in the validation set
     X_train, X_test, y_train, y_test = train_test_split(Xin, yin, test_size = 0.2, random_state = 42)
-    model = RandomForestRegressor()
  
     # fit the model
+    if optimisedparams is not None:
+        model = RandomForestRegressor(**optimisedparams)
+    else:
+        model = RandomForestRegressor(random_state = 1)
+ 
     model.fit(X_train, y_train)
 
     y_pred = model.predict(X_train)
+
+    mse = sklearn.metrics.mean_squared_error(y_train, y_pred)
+    r2s = sklearn.metrics.r2_score(y_train, y_pred)
+
+    rmse = math.sqrt(mse)
+    if verbose:
+        print("         Trainingset RMSE: %10.5f"%rmse, file=pout)
+        print("                       R2: %10.5f"%r2s, file=pout)
 
     if verbose:
         pyplot.clf()
@@ -795,11 +809,19 @@ def rfregressors (Xin, yin, features, plotname="rf_model", N = 50, verbose=True,
             fig1 = pyplot.gcf()
             pyplot.figure(figsize=(10,10))
             pyplot.show()
-            fig1.savefig(plotname+"_trainset_scatter.png", bbox_inches="tight")
+            fig1.savefig(plotname+"_trainingset_scatter.png", bbox_inches="tight")
         else:
-            pyplot.savefig(plotname+"_trainset_scatter.png")
+            pyplot.savefig(plotname+"_trainingset_scatter.png")
 
     y_pred = model.predict(X_test)
+
+    mse = sklearn.metrics.mean_squared_error(y_test, y_pred)
+    r2s = sklearn.metrics.r2_score(y_test, y_pred)
+
+    rmse = math.sqrt(mse)
+    if verbose:
+        print("             Testset RMSE: %10.5f"%rmse, file=pout)
+        print("                       R2: %10.5f"%r2s, file=pout)
 
     if verbose:
         pyplot.clf()
