@@ -997,9 +997,9 @@ def rfregressors (Xin, yin, features, plotname="rf_model", N = 50, verbose=True,
             fig1 = pyplot.gcf()
             pyplot.figure(figsize=(10,10))
             pyplot.show()
-            fig1.savefig(plotname+"_trainset_feats_imp_frompermutation_neg_mean_squared_error.png", bbox_inches="tight")
+            fig1.savefig(plotname+"_trainingset_feats_imp_frompermutation_neg_mean_squared_error.png", bbox_inches="tight")
         else:
-            pyplot.savefig(plotname+"_trainset_feats_imp_frompermutation_neg_mean_squared_error.png")
+            pyplot.savefig(plotname+"_trainingset_feats_imp_frompermutation_neg_mean_squared_error.png")
 
     results= permutation_importance(model, X_train, y_train, n_repeats=50, random_state=0, \
         scoring="r2")
@@ -1042,9 +1042,9 @@ def rfregressors (Xin, yin, features, plotname="rf_model", N = 50, verbose=True,
             fig1 = pyplot.gcf()
             pyplot.figure(figsize=(10,10))
             pyplot.show()
-            fig1.savefig(plotname+"_trainset_feats_imp_frompermutation_r2.png", bbox_inches="tight")
+            fig1.savefig(plotname+"_trainingset_feats_imp_frompermutation_r2.png", bbox_inches="tight")
         else:
-            pyplot.savefig(plotname+"_trainset_feats_imp_frompermutation_r2.png")
+            pyplot.savefig(plotname+"_trainingset_feats_imp_frompermutation_r2.png")
 
     return trainavgrmse, testavgrmse, fullsetrmse, featimport, featimport2,  \
         featimport3, featimport4, featimport5, featimport6
