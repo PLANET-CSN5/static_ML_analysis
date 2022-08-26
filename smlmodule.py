@@ -1051,6 +1051,201 @@ def rfregressors (Xin, yin, features, plotname="rf_model", N = 50, verbose=True,
 
 ##################################################################################33
 
+def rfregressors_multitestset (Xin, yin, features, plotname="rf_model", N = 50, 
+    pout=sys.stdout, optimisedparams=None, visualmap=None, NFI=50, NJ=4):
+
+    train_rmse = []
+    train_r2 = []
+    test_rmse = []
+    test_r2 = []
+
+    featuresforplot = []
+
+    if visualmap == None:
+        featuresforplot = features
+    else:
+        for f in features:
+          vname = visualmap[f]
+          featuresforplot.append(vname)
+
+    test_featuresimportancenegmse = {}
+    test_featuresimportancer2 = {}
+    test_featuresimportancenegmse_first = {}
+    test_featuresimportancer2_first = {}
+    test_featuresimportancenegmse_second = {}
+    test_featuresimportancer2_second = {}
+
+    train_featuresimportancenegmse = {}
+    train_featuresimportancer2 = {}
+    train_featuresimportancenegmse_first = {}
+    train_featuresimportancer2_first = {}
+    train_featuresimportancenegmse_second = {}
+    train_featuresimportancer2_second = {}
+
+    for f in featuresforplot:
+        train_featuresimportancenegmse[f] = []
+        train_featuresimportancer2[f] = []
+
+        test_featuresimportancenegmse_first[f] = 0
+        test_featuresimportancer2_first[f] = 0
+        test_featuresimportancenegmse_second[f] = 0
+        test_featuresimportancer2_second[f] = 0
+
+        test_featuresimportancenegmse[f] = []
+        test_featuresimportancer2[f] = []
+
+        train_featuresimportancenegmse_first[f] = 0
+        train_featuresimportancer2_first[f] = 0
+        train_featuresimportancenegmse_second[f] = 0
+        train_featuresimportancer2_second[f] = 0
+
+    for isplit in range(N):
+        X_train, X_test, y_train, y_test = train_test_split(
+            Xin, yin, test_size=0.35)
+        model = None 
+
+        if optimisedparams is not None:
+            model = RandomForestRegressor(**optimisedparams)
+        else:
+            model = RandomForestRegressor(random_state = 1)
+
+        model.fit(X_train, y_train)
+        
+        y_pred = model.predict(X_train)
+        mse = sklearn.metrics.mean_squared_error(y_train, y_pred)
+        rmse = math.sqrt(mse)
+        train_rmse.append(rmse)
+        r2train = sklearn.metrics.r2_score(y_train, y_pred)
+        train_r2.append(r2train)
+        
+        y_pred = model.predict(X_test)
+        mse = sklearn.metrics.mean_squared_error(y_test, y_pred)
+        rmse = math.sqrt(mse)
+        test_rmse.append(rmse)
+        r2test = sklearn.metrics.r2_score(y_test, y_pred)
+        test_r2.append(r2test)
+
+        results = permutation_importance(model, X_test, y_test, n_repeats=NFI, \
+            scoring="neg_mean_squared_error", n_jobs=NJ)
+        importance = results.importances_mean
+        #importanceerror = results.importances_std
+        max = float('-inf')
+        max_f = ""
+        second_last = float('-inf')
+        second_last_f = ""
+        for i,v in enumerate(importance):
+            test_featuresimportancenegmse[featuresforplot[i]].append(v)
+            if v > max:
+                second_last = max
+                max = v
+                max_f = featuresforplot[i]
+            elif v > second_last and v != max:
+                second_last = v
+                second_last_f = featuresforplot[i]
+        test_featuresimportancenegmse_first[max_f] += 1
+        test_featuresimportancenegmse_second[second_last_f] += 1
+        results = permutation_importance(model, X_test, y_test, n_repeats=NFI, \
+            scoring="r2", n_jobs=NJ)
+        importance = results.importances_mean
+        #importanceerror = results.importances_std
+        max = float('-inf')
+        max_f = ""
+        second_last = float('-inf')
+        second_last_f = ""
+        for i,v in enumerate(importance):
+            test_featuresimportancer2[featuresforplot[i]].append(v)
+            if v > max:
+                second_last = max
+                max = v
+                max_f = featuresforplot[i]
+            elif v > second_last and v != max:
+                second_last = v
+                second_last_f = featuresforplot[i]
+        test_featuresimportancer2_first[max_f] += 1
+        test_featuresimportancer2_second[second_last_f] += 1
+
+        results = permutation_importance(model, X_train, y_train, n_repeats=NFI, \
+            scoring="neg_mean_squared_error", n_jobs=NJ)
+        importance = results.importances_mean
+        #importanceerror = results.importances_std
+        max = float('-inf')
+        max_f = ""
+        second_last = float('-inf')
+        second_last_f = ""
+        for i,v in enumerate(importance):
+            train_featuresimportancenegmse[featuresforplot[i]].append(v)
+            if v > max:
+                second_last = max
+                max = v
+                max_f = featuresforplot[i]
+            elif v > second_last and v != max:
+                second_last = v
+                second_last_f = featuresforplot[i]
+        train_featuresimportancenegmse_first[max_f] += 1
+        train_featuresimportancenegmse_second[second_last_f] += 1
+        results = permutation_importance(model, X_test, y_test, n_repeats=NFI, \
+            scoring="r2", n_jobs=NJ)
+        importance = results.importances_mean
+        #importanceerror = results.importances_std
+        max = float('-inf')
+        max_f = ""
+        second_last = float('-inf')
+        second_last_f = ""
+        for i,v in enumerate(importance):
+            train_featuresimportancer2[featuresforplot[i]].append(v)
+            if v > max:
+                second_last = max
+                max = v
+                max_f = featuresforplot[i]
+            elif v > second_last and v != max:
+                second_last = v
+                second_last_f = featuresforplot[i]
+        train_featuresimportancer2_first[max_f] += 1
+        train_featuresimportancer2_second[second_last_f] += 1
+
+    trainavgrmse = (np.average(train_rmse), np.std(train_rmse))
+    testavgrmse = (np.average(test_rmse), np.std(test_rmse)) 
+
+    trainavgr2 = (np.average(train_r2), np.std(train_r2))
+    testavgr2 = (np.average(test_r2), np.std(test_r2)) 
+
+    print("Training set average RMSE: %8.5f +/- %8.5f "%(trainavgrmse[0], trainavgrmse[1]), 
+            file=pout)
+    print("    Test set average RMSE: %8.5f +/- %8.5f "%(testavgrmse[0], testavgrmse[1]),
+            file=pout)
+
+    print("  Training set average R2: %8.5f +/- %8.5f "%(trainavgr2[0], trainavgr2[1]), 
+            file=pout)
+    print("      Test set average R2: %8.5f +/- %8.5f "%(testavgr2[0], testavgr2[1]),
+            file=pout) 
+
+    print("Taining:")
+    for f in featuresforplot:
+        print("%20s , %10.5f +/- %10.5f , %10.5f +/- %10.5f , %10.5f , %10.5f , %10.5f , %10.5f"%(f, \
+                 np.average(train_featuresimportancenegmse[f]), 
+                 np.std(train_featuresimportancenegmse[f]), 
+                 np.average(train_featuresimportancer2[f]), 
+                 np.std(train_featuresimportancer2[f]),
+                 100.0*(train_featuresimportancenegmse_first[f]/N), 
+                 100.0*(train_featuresimportancenegmse_second[f]/N), 
+                 100.0*(train_featuresimportancer2_first[f]/N), 
+                 100.0*(train_featuresimportancer2_second[f]/N)))
+
+    print("Test:")
+    for f in featuresforplot:
+        print("%20s , %10.5f +/- %10.5f , %10.5f +/- %10.5f , %10.5f , %10.5f , %10.5f , %10.5f"%(f, \
+                 np.average(test_featuresimportancenegmse[f]), 
+                 np.std(test_featuresimportancenegmse[f]), 
+                 np.average(test_featuresimportancer2[f]), 
+                 np.std(test_featuresimportancer2[f]),  
+                 100.0*(test_featuresimportancenegmse_first[f]/N), 
+                 100.0*(test_featuresimportancenegmse_second[f]/N), 
+                 100.0*(test_featuresimportancer2_first[f]/N), 
+                 100.0*(test_featuresimportancer2_second[f]/N)))
+
+    return 
+
+##################################################################################33
 
 def knregressors (Xin, yin, features, plotname="KNmodel", N=50, verbose=True):
     train_rmse = []
