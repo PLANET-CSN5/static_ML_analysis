@@ -1268,8 +1268,10 @@ def rfregressors_multitestset (Xin, yin, features, plotname="rf_model", N = 50,
             elif v > second_last and v != max:
                 second_last = v
                 second_last_f = featuresforplot[i]
+
         test_featuresimportancenegmse_first[max_f] += 1
-        test_featuresimportancenegmse_second[second_last_f] += 1
+        if second_last_f != "":
+            test_featuresimportancenegmse_second[second_last_f] += 1
         results = permutation_importance(model, X_test, y_test, n_repeats=NFI, \
             scoring="r2", n_jobs=NJ)
         importance = results.importances_mean
@@ -1288,7 +1290,8 @@ def rfregressors_multitestset (Xin, yin, features, plotname="rf_model", N = 50,
                 second_last = v
                 second_last_f = featuresforplot[i]
         test_featuresimportancer2_first[max_f] += 1
-        test_featuresimportancer2_second[second_last_f] += 1
+        if second_last_f != "":
+            test_featuresimportancer2_second[second_last_f] += 1
 
         results = permutation_importance(model, X_train, y_train, n_repeats=NFI, \
             scoring="neg_mean_squared_error", n_jobs=NJ)
@@ -1308,7 +1311,8 @@ def rfregressors_multitestset (Xin, yin, features, plotname="rf_model", N = 50,
                 second_last = v
                 second_last_f = featuresforplot[i]
         train_featuresimportancenegmse_first[max_f] += 1
-        train_featuresimportancenegmse_second[second_last_f] += 1
+        if second_last_f != "":
+            train_featuresimportancenegmse_second[second_last_f] += 1
         results = permutation_importance(model, X_test, y_test, n_repeats=NFI, \
             scoring="r2", n_jobs=NJ)
         importance = results.importances_mean
@@ -1327,7 +1331,8 @@ def rfregressors_multitestset (Xin, yin, features, plotname="rf_model", N = 50,
                 second_last = v
                 second_last_f = featuresforplot[i]
         train_featuresimportancer2_first[max_f] += 1
-        train_featuresimportancer2_second[second_last_f] += 1
+        if second_last_f != "":
+            train_featuresimportancer2_second[second_last_f] += 1
 
     trainavgrmse = (np.average(train_rmse), np.std(train_rmse))
     testavgrmse = (np.average(test_rmse), np.std(test_rmse)) 
