@@ -1051,6 +1051,129 @@ def rfregressors (Xin, yin, features, plotname="rf_model", N = 50, verbose=True,
 
 ##################################################################################33
 
+def rfregressors_custom_optimizer_split_testtr (Xin, yin, NSPLIT=10, \
+    verbose=True, inboot=[True, False]):
+
+    n_estimators = [100, 300, 500, 800, 1200]
+    max_depth = [None, 5, 8, 15, 25, 30]
+    min_samples_split = [2, 5, 10, 15, 100]
+    min_samples_leaf = [1, 2, 5, 10] 
+    random_state = [1]
+    max_features = ['auto', 'sqrt']
+    bootstrap = inboot
+
+    hyperF = {"n_estimators" : n_estimators, 
+            "max_depth" : max_depth,  
+            "min_samples_split" : min_samples_split, 
+            "min_samples_leaf" : min_samples_leaf, 
+            "random_state" : random_state, 
+            "bootstrap" : bootstrap,
+            "max_features" : max_features}
+
+    besthyperF = {"n_estimators" : n_estimators, 
+            "max_depth" : max_depth,  
+            "min_samples_split" : min_samples_split, 
+            "min_samples_leaf" : min_samples_leaf, 
+            "random_state" : random_state, 
+            "bootstrap" : bootstrap,
+            "max_features" : max_features}
+    
+
+    total = 1
+    for k in hyperF:
+        total *= len(hyperF[k])
+    counter = 1
+    best_train_rmse = float("+inf")
+    best_test_rmse = float("+inf")
+    best_diff = float("+inf")
+    for a in hyperF["n_estimators"]:
+        for b in  hyperF["max_depth"]:
+            for c in  hyperF["min_samples_split"]:
+                for d in  hyperF["min_samples_leaf"]:
+                    for e in  hyperF["random_state"]:
+                        for f in  hyperF["bootstrap"]:
+                            for g in  hyperF["max_features"]:
+
+                                print("%5d of %5d"%(counter, total))
+
+                                diffstdperc_l = []
+                                train_rmse_l = []
+                                test_rmse_l = []
+                                diffrmse_l = []
+                                diffstdperc_l = []
+
+                                for ns  in range(NSPLIT):
+                                    X_train, X_test, y_train, y_test = train_test_split(
+                                        Xin, yin, test_size=0.35)
+
+                                    model = RandomForestRegressor(
+                                        n_estimators=a,
+                                        max_depth=b,
+                                        min_samples_split=c,
+                                        min_samples_leaf=d,
+                                        random_state=e,
+                                        bootstrap=f,
+                                        max_features=g
+                                    )
+
+                                    model.fit(X_train, y_train)
+
+                                    y_pred = model.predict(X_train)
+                                    mse = sklearn.metrics.mean_squared_error(y_train, y_pred)
+                                    train_rmse_l.append(math.sqrt(mse))
+                                
+                                    y_pred = model.predict(X_test)
+                                    mse = sklearn.metrics.mean_squared_error(y_test, y_pred)
+                                    test_rmse_l.append(math.sqrt(mse))
+ 
+                                    diffrmse_l.append(math.fabs(test_rmse_l[-1] -train_rmse_l[-1]))
+
+                                    model1 = RandomForestRegressor(
+                                        n_estimators=a,
+                                        max_depth=b,
+                                        min_samples_split=c,
+                                        min_samples_leaf=d,
+                                        random_state=e,
+                                        bootstrap=f,
+                                        max_features=g
+                                    )
+
+                                    model1.fit(Xin, yin)
+
+                                    y_pred = model1.predict(Xin)
+
+                                    diffstdperc_l.append(100*(math.fabs(np.std(y_pred) - np.std(yin))/np.std(yin)))
+
+                                #print(counter , " of ", total ,"Train RMSE: ", train_rmse)
+                                #print(counter , " of ", total ," Test RMSE: ", test_rmse)
+
+                                diffstdperc = np.average(diffstdperc_l)
+                                train_rmse = np.average(train_rmse_l)
+                                test_rmse = np.average(test_rmse_l)
+                                diffrmse = np.average(diffrmse_l)
+                                diffstdperc = np.average(diffstdperc_l)
+
+                                counter += 1
+
+                                if diffstdperc < 80.0 and \
+                                    train_rmse < best_train_rmse:
+
+                                    best_test_rmse = test_rmse
+                                    best_train_rmse = train_rmse
+                                    best_diff = diffrmse
+
+                                    besthyperF = {"n_estimators" : a,
+                                              "max_depth" : b,  
+                                              "min_samples_split" : c, 
+                                              "min_samples_leaf" : d, 
+                                              "random_state" : e, 
+                                              "bootstrap" : f,
+                                              "max_features" : g}
+
+    return besthyperF, best_diff, best_test_rmse, best_train_rmse
+
+##################################################################################33
+
 def rfregressors_multitestset (Xin, yin, features, plotname="rf_model", N = 50, 
     pout=sys.stdout, optimisedparams=None, visualmap=None, NFI=50, NJ=4):
 
@@ -1100,6 +1223,9 @@ def rfregressors_multitestset (Xin, yin, features, plotname="rf_model", N = 50,
         train_featuresimportancer2_second[f] = 0
 
     for isplit in range(N):
+
+        print("%5d of %5d"%(isplit, N))
+
         X_train, X_test, y_train, y_test = train_test_split(
             Xin, yin, test_size=0.35)
         model = None 
@@ -1217,26 +1343,41 @@ def rfregressors_multitestset (Xin, yin, features, plotname="rf_model", N = 50,
     print("  Training set average R2: %8.5f +/- %8.5f "%(trainavgr2[0], trainavgr2[1]), 
             file=pout)
     print("      Test set average R2: %8.5f +/- %8.5f "%(testavgr2[0], testavgr2[1]),
-            file=pout) 
+            file=pout)
+
+
+    refval1 = np.average(train_featuresimportancenegmse["Random Feat."])
+    refval2 = np.average(train_featuresimportancer2["Random Feat."])
 
     print("Taining:")
     for f in featuresforplot:
-        print("%20s , %10.5f +/- %10.5f , %10.5f +/- %10.5f , %10.5f , %10.5f , %10.5f , %10.5f"%(f, \
-                 np.average(train_featuresimportancenegmse[f]), 
+        val1average = np.average(train_featuresimportancenegmse[f])
+        val2average = np.average(train_featuresimportancer2[f])
+        if (val1average > 0.0 and val1average > refval1 and \
+            val2average > 0.0 and val2average > refval2):
+            print("%20s , %10.5f +/- %10.5f , %10.5f +/- %10.5f , %10.5f , %10.5f , %10.5f , %10.5f"%(f, \
+                 val1average, 
                  np.std(train_featuresimportancenegmse[f]), 
-                 np.average(train_featuresimportancer2[f]), 
+                 val2average, 
                  np.std(train_featuresimportancer2[f]),
                  100.0*(train_featuresimportancenegmse_first[f]/N), 
                  100.0*(train_featuresimportancenegmse_second[f]/N), 
                  100.0*(train_featuresimportancer2_first[f]/N), 
                  100.0*(train_featuresimportancer2_second[f]/N)))
 
+    refval1 = np.average(test_featuresimportancenegmse["Random Feat."])
+    refval2 = np.average(test_featuresimportancer2["Random Feat."])
+
     print("Test:")
     for f in featuresforplot:
-        print("%20s , %10.5f +/- %10.5f , %10.5f +/- %10.5f , %10.5f , %10.5f , %10.5f , %10.5f"%(f, \
-                 np.average(test_featuresimportancenegmse[f]), 
+        val1average = np.average(test_featuresimportancenegmse[f])
+        val2average = np.average(test_featuresimportancer2[f])
+        if (val1average > 0.0 and val1average > refval1 and \
+            val2average > 0.0 and val2average > refval2):
+            print("%20s , %10.5f +/- %10.5f , %10.5f +/- %10.5f , %10.5f , %10.5f , %10.5f , %10.5f"%(f, \
+                 val1average, 
                  np.std(test_featuresimportancenegmse[f]), 
-                 np.average(test_featuresimportancer2[f]), 
+                 val2average, 
                  np.std(test_featuresimportancer2[f]),  
                  100.0*(test_featuresimportancenegmse_first[f]/N), 
                  100.0*(test_featuresimportancenegmse_second[f]/N), 
