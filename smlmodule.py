@@ -16,6 +16,20 @@ from matplotlib import pyplot
 
 from pprint import pprint
 
+##################################################################################
+
+def progress_bar (count, total, status=''):
+
+    bar_len = 60
+    filled_len = int(round(bar_len * count / float(total)))
+
+    percents = round(100.0 * count / float(total), 1)
+    bar = '=' * filled_len + '-' * (bar_len - filled_len)
+
+    sys.stdout.write('[%s] %s%s ...%s\r' % (bar, percents, '%', status))
+    sys.stdout.flush() 
+
+
 ##################################################################################33
 
 def extract_given_prov (data, id):
@@ -1062,6 +1076,15 @@ def rfregressors_custom_optimizer_split_testtr (Xin, yin, NSPLIT=10, \
     max_features = ['auto', 'sqrt']
     bootstrap = inboot
 
+    #quick test 
+    #n_estimators = [100, 300]
+    #max_depth = [None]
+    #min_samples_split = [2]
+    #min_samples_leaf = [1] 
+    #random_state = [1]
+    #max_features = ['auto', 'sqrt']
+    #bootstrap = inboot
+
     hyperF = {"n_estimators" : n_estimators, 
             "max_depth" : max_depth,  
             "min_samples_split" : min_samples_split, 
@@ -1079,6 +1102,7 @@ def rfregressors_custom_optimizer_split_testtr (Xin, yin, NSPLIT=10, \
             "max_features" : max_features}
     
 
+    print("Starting...")
     total = 1
     for k in hyperF:
         total *= len(hyperF[k])
@@ -1094,7 +1118,7 @@ def rfregressors_custom_optimizer_split_testtr (Xin, yin, NSPLIT=10, \
                         for f in  hyperF["bootstrap"]:
                             for g in  hyperF["max_features"]:
 
-                                print("%5d of %5d"%(counter, total))
+                                #print("%5d of %5d"%(counter, total))
 
                                 diffstdperc_l = []
                                 train_rmse_l = []
@@ -1153,6 +1177,8 @@ def rfregressors_custom_optimizer_split_testtr (Xin, yin, NSPLIT=10, \
                                 diffrmse = np.average(diffrmse_l)
                                 diffstdperc = np.average(diffstdperc_l)
 
+                                progress_bar (counter, total)
+
                                 counter += 1
 
                                 if diffstdperc < 80.0 and \
@@ -1169,6 +1195,8 @@ def rfregressors_custom_optimizer_split_testtr (Xin, yin, NSPLIT=10, \
                                               "random_state" : e, 
                                               "bootstrap" : f,
                                               "max_features" : g}
+    print("[")
+    print("Done")
 
     return besthyperF, best_diff, best_test_rmse, best_train_rmse
 
@@ -1221,10 +1249,12 @@ def rfregressors_multitestset (Xin, yin, features, plotname="rf_model", N = 50,
         train_featuresimportancer2_first[f] = 0
         train_featuresimportancenegmse_second[f] = 0
         train_featuresimportancer2_second[f] = 0
+    
+    print("Starting...")
 
     for isplit in range(N):
 
-        print("%5d of %5d"%(isplit, N))
+        #print("%5d of %5d"%(isplit, N))
 
         X_train, X_test, y_train, y_test = train_test_split(
             Xin, yin, test_size=0.35)
@@ -1333,6 +1363,10 @@ def rfregressors_multitestset (Xin, yin, features, plotname="rf_model", N = 50,
         train_featuresimportancer2_first[max_f] += 1
         if second_last_f != "":
             train_featuresimportancer2_second[second_last_f] += 1
+
+        progress_bar (isplit+1, N)
+    print("[")
+    print("Done")
 
     trainavgrmse = (np.average(train_rmse), np.std(train_rmse))
     testavgrmse = (np.average(test_rmse), np.std(test_rmse)) 
