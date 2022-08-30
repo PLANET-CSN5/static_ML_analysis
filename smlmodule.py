@@ -1295,7 +1295,7 @@ def rfregressors_multitestset (Xin, yin, features, plotname="rf_model", N = 50,
                 second_last = max
                 max = v
                 max_f = featuresforplot[i]
-            elif v > second_last and v != max:
+            elif v >= second_last and v != max:
                 second_last = v
                 second_last_f = featuresforplot[i]
 
@@ -1316,7 +1316,7 @@ def rfregressors_multitestset (Xin, yin, features, plotname="rf_model", N = 50,
                 second_last = max
                 max = v
                 max_f = featuresforplot[i]
-            elif v > second_last and v != max:
+            elif v >= second_last and v != max:
                 second_last = v
                 second_last_f = featuresforplot[i]
         test_featuresimportancer2_first[max_f] += 1
@@ -1337,7 +1337,7 @@ def rfregressors_multitestset (Xin, yin, features, plotname="rf_model", N = 50,
                 second_last = max
                 max = v
                 max_f = featuresforplot[i]
-            elif v > second_last and v != max:
+            elif v >= second_last and v != max:
                 second_last = v
                 second_last_f = featuresforplot[i]
         train_featuresimportancenegmse_first[max_f] += 1
@@ -1357,7 +1357,7 @@ def rfregressors_multitestset (Xin, yin, features, plotname="rf_model", N = 50,
                 second_last = max
                 max = v
                 max_f = featuresforplot[i]
-            elif v > second_last and v != max:
+            elif v >= second_last and v != max:
                 second_last = v
                 second_last_f = featuresforplot[i]
         train_featuresimportancer2_first[max_f] += 1
@@ -1392,8 +1392,8 @@ def rfregressors_multitestset (Xin, yin, features, plotname="rf_model", N = 50,
     for f in featuresforplot:
         val1average = np.average(train_featuresimportancenegmse[f])
         val2average = np.average(train_featuresimportancer2[f])
-        if (val1average > 0.0 and val1average > refval1 and \
-            val2average > 0.0 and val2average > refval2):
+        #if (val1average > 0.0 and val1average > refval1 and \
+        #    val2average > 0.0 and val2average > refval2):
             print("%20s , %10.5f +/- %10.5f , %10.5f +/- %10.5f , %10.5f , %10.5f , %10.5f , %10.5f"%(f, \
                  val1average, 
                  np.std(train_featuresimportancenegmse[f]), 
@@ -1411,8 +1411,8 @@ def rfregressors_multitestset (Xin, yin, features, plotname="rf_model", N = 50,
     for f in featuresforplot:
         val1average = np.average(test_featuresimportancenegmse[f])
         val2average = np.average(test_featuresimportancer2[f])
-        if (val1average > 0.0 and val1average > refval1 and \
-            val2average > 0.0 and val2average > refval2):
+        #if (val1average > 0.0 and val1average > refval1 and \
+        #    val2average > 0.0 and val2average > refval2):
             print("%20s , %10.5f +/- %10.5f , %10.5f +/- %10.5f , %10.5f , %10.5f , %10.5f , %10.5f"%(f, \
                  val1average, 
                  np.std(test_featuresimportancenegmse[f]), 
