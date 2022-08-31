@@ -1065,6 +1065,43 @@ def rfregressors (Xin, yin, features, plotname="rf_model", N = 50, verbose=True,
 
 ##################################################################################33
 
+def getfisrtandsecond (importance, featuresforplot, featuresimportance):
+
+    import collections
+
+    toorder = {}
+    checkset = set()
+
+    for i,v in enumerate(importance):
+        featuresimportance[featuresforplot[i]].append(v)
+        toorder[v] = featuresforplot[i]
+        checkset.add(v)
+
+    if len(toorder) != len(checkset):
+        print("Not unique average values ")
+        print(toorder)
+        print(checkset)
+        exit()
+
+    sorted_toorder= collections.OrderedDict(sorted(toorder.items()))
+    if (len(sorted_toorder) < 3):
+        print("Not enough values")
+        exit(1)
+
+    second_last_f = ""
+    max_f = list(sorted_toorder.values())[-1]
+    if (max_f == "Random Feat."):
+        max_f = list(sorted_toorder.values())[-2]
+        second_last_f = list(sorted_toorder.values())[-3]
+    else:
+        second_last_f = list(sorted_toorder.values())[-2]
+        if (second_last_f == "Random Feat."):
+            second_last_f = list(sorted_toorder.values())[-3]
+
+    return max_f, second_last_f
+
+##################################################################################33
+
 def rfregressors_custom_optimizer_split_testtr (Xin, yin, NSPLIT=10, \
     verbose=True, inboot=[True, False]):
 
@@ -1285,86 +1322,44 @@ def rfregressors_multitestset (Xin, yin, features, plotname="rf_model", N = 50,
             scoring="neg_mean_squared_error", n_jobs=NJ)
         importance = results.importances_mean
         #importanceerror = results.importances_std
-        max = float('-inf')
-        max_f = ""
-        second_last = float('-inf')
-        second_last_f = ""
-        for i,v in enumerate(importance):
-            test_featuresimportancenegmse[featuresforplot[i]].append(v)
-            if v > max:
-                second_last = max
-                max = v
-                max_f = featuresforplot[i]
-            elif v >= second_last and v != max:
-                second_last = v
-                second_last_f = featuresforplot[i]
 
+        max_f, second_last_f = getfisrtandsecond (importance, featuresforplot, \
+            test_featuresimportancenegmse)
         test_featuresimportancenegmse_first[max_f] += 1
-        if second_last_f != "":
-            test_featuresimportancenegmse_second[second_last_f] += 1
+        test_featuresimportancenegmse_second[second_last_f] += 1
+
         results = permutation_importance(model, X_test, y_test, n_repeats=NFI, \
             scoring="r2", n_jobs=NJ)
         importance = results.importances_mean
         #importanceerror = results.importances_std
-        max = float('-inf')
-        max_f = ""
-        second_last = float('-inf')
-        second_last_f = ""
-        for i,v in enumerate(importance):
-            test_featuresimportancer2[featuresforplot[i]].append(v)
-            if v > max:
-                second_last = max
-                max = v
-                max_f = featuresforplot[i]
-            elif v >= second_last and v != max:
-                second_last = v
-                second_last_f = featuresforplot[i]
+
+        max_f, second_last_f = getfisrtandsecond (importance, featuresforplot, \
+            test_featuresimportancer2)
         test_featuresimportancer2_first[max_f] += 1
-        if second_last_f != "":
-            test_featuresimportancer2_second[second_last_f] += 1
+        test_featuresimportancer2_second[second_last_f] += 1
 
         results = permutation_importance(model, X_train, y_train, n_repeats=NFI, \
             scoring="neg_mean_squared_error", n_jobs=NJ)
         importance = results.importances_mean
         #importanceerror = results.importances_std
-        max = float('-inf')
-        max_f = ""
-        second_last = float('-inf')
-        second_last_f = ""
-        for i,v in enumerate(importance):
-            train_featuresimportancenegmse[featuresforplot[i]].append(v)
-            if v > max:
-                second_last = max
-                max = v
-                max_f = featuresforplot[i]
-            elif v >= second_last and v != max:
-                second_last = v
-                second_last_f = featuresforplot[i]
+
+        max_f, second_last_f = getfisrtandsecond (importance, featuresforplot, \
+            train_featuresimportancenegmse)
         train_featuresimportancenegmse_first[max_f] += 1
-        if second_last_f != "":
-            train_featuresimportancenegmse_second[second_last_f] += 1
+        train_featuresimportancenegmse_second[second_last_f] += 1
+
         results = permutation_importance(model, X_test, y_test, n_repeats=NFI, \
             scoring="r2", n_jobs=NJ)
         importance = results.importances_mean
         #importanceerror = results.importances_std
-        max = float('-inf')
-        max_f = ""
-        second_last = float('-inf')
-        second_last_f = ""
-        for i,v in enumerate(importance):
-            train_featuresimportancer2[featuresforplot[i]].append(v)
-            if v > max:
-                second_last = max
-                max = v
-                max_f = featuresforplot[i]
-            elif v >= second_last and v != max:
-                second_last = v
-                second_last_f = featuresforplot[i]
+
+        max_f, second_last_f = getfisrtandsecond (importance, featuresforplot, \
+            train_featuresimportancer2)
         train_featuresimportancer2_first[max_f] += 1
-        if second_last_f != "":
-            train_featuresimportancer2_second[second_last_f] += 1
+        train_featuresimportancer2_second[second_last_f] += 1
 
         progress_bar (isplit+1, N)
+
     print("[")
     print("Done")
 
@@ -1394,7 +1389,7 @@ def rfregressors_multitestset (Xin, yin, features, plotname="rf_model", N = 50,
         val2average = np.average(train_featuresimportancer2[f])
         #if (val1average > 0.0 and val1average > refval1 and \
         #    val2average > 0.0 and val2average > refval2):
-            print("%20s , %10.5f +/- %10.5f , %10.5f +/- %10.5f , %10.5f , %10.5f , %10.5f , %10.5f"%(f, \
+        print("%20s , %10.5f +/- %10.5f , %10.5f +/- %10.5f , %10.5f , %10.5f , %10.5f , %10.5f"%(f, \
                  val1average, 
                  np.std(train_featuresimportancenegmse[f]), 
                  val2average, 
@@ -1413,7 +1408,7 @@ def rfregressors_multitestset (Xin, yin, features, plotname="rf_model", N = 50,
         val2average = np.average(test_featuresimportancer2[f])
         #if (val1average > 0.0 and val1average > refval1 and \
         #    val2average > 0.0 and val2average > refval2):
-            print("%20s , %10.5f +/- %10.5f , %10.5f +/- %10.5f , %10.5f , %10.5f , %10.5f , %10.5f"%(f, \
+        print("%20s , %10.5f +/- %10.5f , %10.5f +/- %10.5f , %10.5f , %10.5f , %10.5f , %10.5f"%(f, \
                  val1average, 
                  np.std(test_featuresimportancenegmse[f]), 
                  val2average, 
