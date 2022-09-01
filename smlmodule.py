@@ -136,6 +136,7 @@ def rfregressors_custom_optimizer (Xin, yin, verbose=True, inboot=[True, False])
             "bootstrap" : bootstrap,
             "max_features" : max_features}
 
+    print("Starting...")
     total = 1
     for k in hyperF:
         total *= len(hyperF[k])
@@ -165,6 +166,8 @@ def rfregressors_custom_optimizer (Xin, yin, verbose=True, inboot=[True, False])
  
                                 mse = sklearn.metrics.mean_squared_error(yin, y_pred)
                                 #print(counter , " of ", total ,"MSE: ", mse)
+                                progress_bar (counter, total)
+
                                 counter += 1
                                 if diffstdperc < 80.0 and mse < bestmse:
                                     bestmse = mse
@@ -178,7 +181,8 @@ def rfregressors_custom_optimizer (Xin, yin, verbose=True, inboot=[True, False])
                                                   "max_features" : g}
 
 
-
+    print("[")
+    print("Done")
 
     return besthyperF, bestmse
 
@@ -213,6 +217,7 @@ def rfregressors_custom_optimizer_nooverfit (Xin, yin, verbose=True, inboot=[Tru
     X_train, X_test, y_train, y_test = train_test_split(
             Xin, yin, test_size=0.35)
 
+    print("Starting")
     total = 1
     for k in hyperF:
         total *= len(hyperF[k])
@@ -278,6 +283,8 @@ def rfregressors_custom_optimizer_nooverfit (Xin, yin, verbose=True, inboot=[Tru
                                 #print(test_rmse < best_test_rmse)
                                 #print( diffrmse < best_diff)
 
+                                progress_bar (counter, total)
+
                                 counter += 1
                                 if diffstdperc < 80.0 and percdiff <= 1.0 and train_rmse < best_train_rmse \
                                     and test_rmse < best_test_rmse and diffrmse < best_diff:
@@ -293,6 +300,9 @@ def rfregressors_custom_optimizer_nooverfit (Xin, yin, verbose=True, inboot=[Tru
                                                   "random_state" : e, 
                                                   "bootstrap" : f,
                                                   "max_features" : g}
+
+    print("[")
+    print("Done")
 
     return besthyperF, best_diff, best_test_rmse, best_train_rmse
 
@@ -336,6 +346,7 @@ def rfregressors_custom_optimizer_testset (Xin, yin, verbose=True, inboot=[True,
     X_train, X_test, y_train, y_test = train_test_split(
             Xin, yin, test_size=0.35)
 
+    print("Starting ...")
     total = 1
     for k in hyperF:
         total *= len(hyperF[k])
@@ -390,6 +401,8 @@ def rfregressors_custom_optimizer_testset (Xin, yin, verbose=True, inboot=[True,
 
                                 #print(counter , " of ", total ,"Train RMSE: ", train_rmse)
                                 #print(counter , " of ", total ," Test RMSE: ", test_rmse)
+                                progress_bar (counter, total)
+
                                 counter += 1
                                 if diffstdperc < 80.0 and \
                                     test_rmse < best_test_rmse:
@@ -405,6 +418,9 @@ def rfregressors_custom_optimizer_testset (Xin, yin, verbose=True, inboot=[True,
                                                   "random_state" : e, 
                                                   "bootstrap" : f,
                                                   "max_features" : g}
+
+    print("[")
+    print("Done")
 
     return besthyperF, best_diff, best_test_rmse, best_train_rmse
 
@@ -439,6 +455,8 @@ def rfregressors_custom_optimizer_trainset (Xin, yin, verbose=True, inboot=[True
     X_train, X_test, y_train, y_test = train_test_split(
             Xin, yin, test_size=0.35)
 
+    print("Starting...")
+
     total = 1
     for k in hyperF:
         total *= len(hyperF[k])
@@ -493,6 +511,9 @@ def rfregressors_custom_optimizer_trainset (Xin, yin, verbose=True, inboot=[True
 
                                 #print(counter , " of ", total ,"Train RMSE: ", train_rmse)
                                 #print(counter , " of ", total ," Test RMSE: ", test_rmse)
+
+                                progress_bar (counter, total)
+
                                 counter += 1
                                 if diffstdperc < 80.0 and \
                                     train_rmse < best_train_rmse:
@@ -508,6 +529,9 @@ def rfregressors_custom_optimizer_trainset (Xin, yin, verbose=True, inboot=[True
                                                   "random_state" : e, 
                                                   "bootstrap" : f,
                                                   "max_features" : g}
+
+    print("[")
+    print("Done")
 
     return besthyperF, best_diff, best_test_rmse, best_train_rmse
 
