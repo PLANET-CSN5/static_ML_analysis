@@ -16,6 +16,8 @@ from matplotlib import pyplot
 
 from pprint import pprint
 
+TESTSIZE_SPLIT = 0.50
+
 ##################################################################################
 
 def progress_bar (count, total, status=''):
@@ -215,7 +217,7 @@ def rfregressors_custom_optimizer_nooverfit (Xin, yin, verbose=True, inboot=[Tru
             "max_features" : max_features}
     
     X_train, X_test, y_train, y_test = train_test_split(
-            Xin, yin, test_size=0.35)
+            Xin, yin, test_size=TESTSIZE_SPLIT)
 
     print("Starting")
     total = 1
@@ -344,7 +346,7 @@ def rfregressors_custom_optimizer_testset (Xin, yin, verbose=True, inboot=[True,
             "max_features" : max_features}
     
     X_train, X_test, y_train, y_test = train_test_split(
-            Xin, yin, test_size=0.35)
+            Xin, yin, test_size=TESTSIZE_SPLIT)
 
     print("Starting ...")
     total = 1
@@ -453,7 +455,7 @@ def rfregressors_custom_optimizer_trainset (Xin, yin, verbose=True, inboot=[True
             "max_features" : max_features}
     
     X_train, X_test, y_train, y_test = train_test_split(
-            Xin, yin, test_size=0.35)
+            Xin, yin, test_size=TESTSIZE_SPLIT)
 
     print("Starting...")
 
@@ -605,7 +607,7 @@ def rfregressors (Xin, yin, features, plotname="rf_model", N = 50, verbose=True,
  
     for isplit in range(N):
         X_train, X_test, y_train, y_test = train_test_split(
-            Xin, yin, test_size=0.35)
+            Xin, yin, test_size=TESTSIZE_SPLIT)
         model = None 
 
         if optimisedparams is not None:
@@ -1189,7 +1191,7 @@ def rfregressors_custom_optimizer_split_testtr (Xin, yin, NSPLIT=10, \
 
                                 for ns  in range(NSPLIT):
                                     X_train, X_test, y_train, y_test = train_test_split(
-                                        Xin, yin, test_size=0.35)
+                                        Xin, yin, test_size=TESTSIZE_SPLIT)
 
                                     model = RandomForestRegressor(
                                         n_estimators=a,
@@ -1318,7 +1320,7 @@ def rfregressors_multitestset (Xin, yin, features, plotname="rf_model", N = 50,
         #print("%5d of %5d"%(isplit, N))
 
         X_train, X_test, y_train, y_test = train_test_split(
-            Xin, yin, test_size=0.35)
+            Xin, yin, test_size=TESTSIZE_SPLIT)
         model = None 
 
         if optimisedparams is not None:
@@ -1461,7 +1463,7 @@ def knregressors (Xin, yin, features, plotname="KNmodel", N=50, verbose=True):
  
     for isplit in range(N):
         X_train, X_test, y_train, y_test = train_test_split(
-            Xin, yin, test_size=0.35)
+            Xin, yin, test_size=TESTSIZE_SPLIT)
         model = KNeighborsRegressor()
         model.fit(X_train, y_train)
         
