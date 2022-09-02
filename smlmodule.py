@@ -841,7 +841,7 @@ def rfregressors (Xin, yin, features, plotname="rf_model", N = 50, verbose=True,
             pyplot.savefig(plotname+"_fullset_feats_imp_frompermutation_r2.png")
     
     #test in the validation set
-    X_train, X_test, y_train, y_test = train_test_split(Xin, yin, test_size = 0.2, random_state = 42)
+    X_train, X_test, y_train, y_test = train_test_split(Xin, yin, test_size = TESTSIZE_SPLIT)
  
     # fit the model
     if optimisedparams is not None:
@@ -1266,7 +1266,7 @@ def rfregressors_custom_optimizer_split_testtr (Xin, yin, NSPLIT=10, \
 ##################################################################################33
 
 def rfregressors_multitestset (Xin, yin, features, plotname="rf_model", N = 50, 
-    pout=sys.stdout, optimisedparams=None, visualmap=None, NFI=50, NJ=4):
+    pout=sys.stdout, optimisedparams=None, visualmap=None, NFI=50, NJ=2):
 
     train_rmse = []
     train_r2 = []
