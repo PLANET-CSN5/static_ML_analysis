@@ -16,7 +16,7 @@ from matplotlib import pyplot
 
 from pprint import pprint
 
-TESTSIZE_SPLIT = 0.50
+TESTSIZE_SPLIT = 0.35
 
 ##################################################################################
 
