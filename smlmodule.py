@@ -1406,8 +1406,11 @@ def rfregressors_multitestset (Xin, yin, features, plotname="rf_model", N = 50,
             file=pout)
 
 
-    refval1 = np.average(train_featuresimportancenegmse["Random Feat."])
-    refval2 = np.average(train_featuresimportancer2["Random Feat."])
+    #refval1 = np.average(train_featuresimportancenegmse["Random Feat."])
+    #refval2 = np.average(train_featuresimportancer2["Random Feat."])
+
+    refval1 = -100.0
+    refval2 = -100.0
 
     print("Taining:")
     for f in featuresforplot:
@@ -1425,8 +1428,8 @@ def rfregressors_multitestset (Xin, yin, features, plotname="rf_model", N = 50,
                  100.0*(train_featuresimportancer2_first[f]/N), 
                  100.0*(train_featuresimportancer2_second[f]/N)))
 
-    refval1 = np.average(test_featuresimportancenegmse["Random Feat."])
-    refval2 = np.average(test_featuresimportancer2["Random Feat."])
+    #refval1 = np.average(test_featuresimportancenegmse["Random Feat."])
+    #refval2 = np.average(test_featuresimportancer2["Random Feat."])
 
     print("Test:")
     for f in featuresforplot:
